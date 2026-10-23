@@ -37,7 +37,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = isMobile and UDim2.new(1, 0, 0, 35) or UDim2.new(1, 0, 0, 55)
 titleLabel.BackgroundColor3 = Color3.fromRGB(35, 15, 60)
 titleLabel.BackgroundTransparency = 0.4
-titleLabel.Text = "  Juwl Menu v1.1" 
+titleLabel.Text = "  Juwl Menu v1.0" 
 titleLabel.TextSize = isMobile and 14 or 20
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -203,15 +203,14 @@ end
 
 -- home view
 local homeView = createTab("Home", 1, true)
-local gameView = createTab("Game", 2, false)
-local opStuffView = createTab("OP Stuff", 3, false) 
-local levelMakerView = createTab("Level Creator", 4, false) 
-local skinsView = createTab("Become Character", 5, false) 
-local speedrunView = createTab("Speedrun", 6, false) 
-local removedView = createTab("Removed Features", 7, false) 
-local musicView = createTab("Music", 8, false) 
-local visualView = createTab("Character Tweaks", 9, false)
-local settingsView = createTab("Settings", 10, false) 
+local gameView = createTab("Game", 2, false) 
+local levelMakerView = createTab("Level Creator", 3, false) 
+local skinsView = createTab("Become Character", 4, false) 
+local speedrunView = createTab("Speedrun", 5, false) 
+local removedView = createTab("Removed Features", 6, false) 
+local musicView = createTab("Music", 7, false) 
+local visualView = createTab("Character Tweaks", 8, false)
+local settingsView = createTab("Settings", 9, false) 
 
 
 
@@ -219,7 +218,7 @@ local homeText = Instance.new("TextLabel")
 homeText.Size = UDim2.new(1, -40, 0, 100)
 homeText.Position = isMobile and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 20, 0, 40)
 homeText.BackgroundTransparency = 1
-homeText.Text = "Thank you for using this script!\n\nThe developer's name is ImNull_L"
+homeText.Text = "This is the first release of JUWL 1.0 Thank you for using it.\n\nThe developer's name is ImNull_L"
 homeText.TextColor3 = Color3.fromRGB(240, 220, 255)
 homeText.TextSize = isMobile and 14 or 18
 homeText.Font = Enum.Font.SourceSansBold
@@ -856,27 +855,7 @@ addCreatorObjectButton("Bridge Support", 532, nil, nil, 804)
 
 addCreatorObjectButton("Bridge Support", 532, nil, nil, 804)
 
---OP STUFF VIEW
-local opStuffScroll = Instance.new("ScrollingFrame")
-opStuffScroll.Size = UDim2.new(1, 0, 1, 0)
-opStuffScroll.BackgroundTransparency = 1
-opStuffScroll.BorderSizePixel = 0
-opStuffScroll.ScrollBarThickness = 4
-opStuffScroll.ScrollBarImageColor3 = Color3.fromRGB(130, 60, 220)
-opStuffScroll.CanvasSize = UDim2.new(0, 0, 0, 300)
-opStuffScroll.ScrollingDirection = Enum.ScrollingDirection.Y
-opStuffScroll.ClipsDescendants = true
-opStuffScroll.Parent = opStuffView 
 
-local opStuffLayout = Instance.new("UIListLayout")
-opStuffLayout.SortOrder = Enum.SortOrder.LayoutOrder
-opStuffLayout.Padding = UDim.new(0, isMobile and 6 or 10)
-opStuffLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-opStuffLayout.Parent = opStuffScroll
-
-local opStuffPadding = Instance.new("UIPadding")
-opStuffPadding.PaddingTop = UDim.new(0, 10)
-opStuffPadding.Parent = opStuffScroll
 
 
 
