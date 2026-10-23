@@ -135,7 +135,7 @@ local function resolvePath(pathStr)
 	local segments = string.split(pathStr, ".")
 	local current = game
 	local startIdx = 1
-	if segments == "game" then startIdx = 2 end
+	if segments[1] == "game" then startIdx = 2 end
 	
 	for i = startIdx, #segments do
 		local success, found = pcall(function() return current:FindFirstChild(segments[i]) end)
@@ -144,7 +144,7 @@ local function resolvePath(pathStr)
 	return current
 end
 
--- Helper pattern algorithm matching layouts top-to-bottom
+
 local function getOriginalKeyOrder(scriptText)
 	local orderMap = {}
 	if not scriptText or scriptText == "" then return orderMap end
@@ -161,7 +161,25 @@ local function getOriginalKeyOrder(scriptText)
 	return orderMap
 end
 
--- Output keys exactly matched to document order rankings
+
+local function fallbackKeyDiscovery(t)
+	local discovered = {}
+	
+	for k in ipairs(t) do
+		discovered[tostring(k)] = k
+	end
+
+	local count = 200
+	for k, v in pairs(t) do
+		local keyStr = tostring(k)
+		if not discovered[keyStr] then
+			discovered[keyStr] = count
+			count = count + 1
+		end
+	end
+	return discovered
+end
+
 local function tableToString(t, keyOrder, depth)
 	depth = depth or 0
 	if type(t) ~= "table" then return tostring(t) end
@@ -173,9 +191,14 @@ local function tableToString(t, keyOrder, depth)
 		table.insert(sortedKeys, k)
 	end
 	
+	local effectiveOrder = keyOrder
+	if not effectiveOrder or next(effectiveOrder) == nil then
+		effectiveOrder = fallbackKeyDiscovery(t)
+	end
+	
 	table.sort(sortedKeys, function(a, b)
-		local rankA = keyOrder and keyOrder[tostring(a)] or 9999
-		local rankB = keyOrder and keyOrder[tostring(b)] or 9999
+		local rankA = effectiveOrder and effectiveOrder[tostring(a)] or 9999
+		local rankB = effectiveOrder and effectiveOrder[tostring(b)] or 9999
 		if rankA ~= rankB then
 			return rankA < rankB
 		else
@@ -188,7 +211,7 @@ local function tableToString(t, keyOrder, depth)
 		local key = type(k) == "string" and k or "["..k.."]"
 		result = result .. indent .. "  " .. key .. " = "
 		if type(v) == "table" then 
-			result = result .. tableToString(v, keyOrder, depth + 1)
+			result = result .. tableToString(v, effectiveOrder, depth + 1)
 		elseif type(v) == "string" then 
 			result = result .. '"' .. v .. '"'
 		else 
@@ -225,7 +248,7 @@ loadBtn.MouseButton1Click:Connect(function()
 		editor.Text = "return " .. tableToString(data, keyOrder)
 		currentModule = module
 		updateScroll()
-		status.Text = "Loaded: " .. module.Name
+		status.Text = "Loaded Document Order: " .. module.Name
 	else
 		status.Text = "Module doesn't return a table"
 	end
@@ -304,28 +327,23 @@ UserInputService.InputEnded:Connect(function(input)
 	end
 end)
 
--- NEW MOBILE OVERRIDE DETECTOR: Pulls menu slightly downwards when active typing begins
 local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
-local typingPosition = UDim2.new(0.5, 0, 0.5, 45) -- Pushes menu 45 pixels DOWN instead of lifting up
-
+local typingPosition = UDim2.new(0.5, 0, 0.5, 45)
 UserInputService.TextBoxFocused:Connect(function(textBox)
-	if textBox == editor or textBox == pathBox then
-		-- Verify if device uses touch features (Mobile/Tablet)
-		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-			main.Position = typingPosition
-		end
-	end
+if textBox == editor or textBox == pathBox then
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+main.Position = typingPosition
+end
+end
 end)
-
 UserInputService.TextBoxFocusReleased:Connect(function(textBox)
-	if textBox == editor or textBox == pathBox then
-		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-			main.Position = normalPosition
-		end
-	end
+if textBox == editor or textBox == pathBox then
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+main.Position = normalPosition
+end
+end
 end)
 
--- INITIALIZATION ENVIRONMENT CHECKER
 local function checkEnvironment()
 local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
 if string.find(string.lower(execName), "xeno") then
