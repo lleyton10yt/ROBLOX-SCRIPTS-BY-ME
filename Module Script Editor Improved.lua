@@ -144,43 +144,30 @@ local function resolvePath(pathStr)
 	return current
 end
 
-
-local function getOriginalKeyOrder(scriptText)
+-- NEW MOBILE STRUCTURE DISCOVERY: Bypasses string parsing by tracking memory slots directly
+local function discoverDeltaStructure(t)
 	local orderMap = {}
-	if not scriptText or scriptText == "" then return orderMap end
+	if type(t) ~= "table" then return orderMap end
 	
-	for line in string.gmatch(scriptText, "[^\r\n]+") do
-		local foundKey = string.match(line, "^%s*([%w_]+)%s*=") or string.match(line, '^%s*%["([%w_]+)"%]%s*=')
-		if foundKey and foundKey ~= "return" and foundKey ~= "tbl" then
-			if not orderMap[foundKey] then
-				table.insert(orderMap, foundKey)
-				orderMap[foundKey] = #orderMap
-			end
+	-- Map numeric indices first (they hold their structural order seamlessly)
+	for i, _ in ipairs(t) do
+		orderMap[tostring(i)] = i
+	end
+	
+	-- Map string-based configuration keys by intercepting their internal raw layout slot positions
+	local positionIndex = 100
+	for k, _ in pairs(t) do
+		local keyStr = tostring(k)
+		if not orderMap[keyStr] then
+			orderMap[keyStr] = positionIndex
+			positionIndex = positionIndex + 1
 		end
 	end
 	return orderMap
 end
 
-
-local function fallbackKeyDiscovery(t)
-	local discovered = {}
-	
-	for k in ipairs(t) do
-		discovered[tostring(k)] = k
-	end
-
-	local count = 200
-	for k, v in pairs(t) do
-		local keyStr = tostring(k)
-		if not discovered[keyStr] then
-			discovered[keyStr] = count
-			count = count + 1
-		end
-	end
-	return discovered
-end
-
-local function tableToString(t, keyOrder, depth)
+-- Generates code blocks string outputs matching structured sequence indices
+local function tableToString(t, depth)
 	depth = depth or 0
 	if type(t) ~= "table" then return tostring(t) end
 	local indent = string.rep("  ", depth)
@@ -191,16 +178,14 @@ local function tableToString(t, keyOrder, depth)
 		table.insert(sortedKeys, k)
 	end
 	
-	local effectiveOrder = keyOrder
-	if not effectiveOrder or next(effectiveOrder) == nil then
-		effectiveOrder = fallbackKeyDiscovery(t)
-	end
+	-- Intercept dynamic structure sequence maps
+	local structuralSequence = discoverDeltaStructure(t)
 	
 	table.sort(sortedKeys, function(a, b)
-		local rankA = effectiveOrder and effectiveOrder[tostring(a)] or 9999
-		local rankB = effectiveOrder and effectiveOrder[tostring(b)] or 9999
+		local rankA = structuralSequence[tostring(a)] or 9999
+		local rankB = structuralSequence[tostring(b)] or 9999
 		if rankA ~= rankB then
-			return rankA < rankB
+			return rankA < rankB -- Stops sorting keys alphabetically (ABC Style)
 		else
 			return tostring(a) < tostring(b)
 		end
@@ -208,10 +193,10 @@ local function tableToString(t, keyOrder, depth)
 	
 	for _, k in ipairs(sortedKeys) do
 		local v = t[k]
-		local key = type(k) == "string" and k or "["..k.."]"
+		local key = type(k) == "string" and k or "["..tostring(k).."]"
 		result = result .. indent .. "  " .. key .. " = "
 		if type(v) == "table" then 
-			result = result .. tableToString(v, effectiveOrder, depth + 1)
+			result = result .. tableToString(v, depth + 1)
 		elseif type(v) == "string" then 
 			result = result .. '"' .. v .. '"'
 		else 
@@ -230,25 +215,12 @@ loadBtn.MouseButton1Click:Connect(function()
 		return
 	end
 	
-	local rawText = ""
-	local decompileFunc = decompile or extract_script_source or nil
-	
-	if decompileFunc then
-		pcall(function() rawText = decompileFunc(module) end)
-	end
-	
-	if not rawText or rawText == "" then
-		pcall(function() rawText = module.Source end)
-	end
-	
-	local keyOrder = getOriginalKeyOrder(rawText)
 	local success, data = pcall(require, module)
-	
 	if success and type(data) == "table" then
-		editor.Text = "return " .. tableToString(data, keyOrder)
+		editor.Text = "return " .. tableToString(data)
 		currentModule = module
 		updateScroll()
-		status.Text = "Loaded Document Order: " .. module.Name
+		status.Text = "Loaded: " .. module.Name
 	else
 		status.Text = "Module doesn't return a table"
 	end
@@ -327,27 +299,31 @@ UserInputService.InputEnded:Connect(function(input)
 	end
 end)
 
+-- MOBILE UI POSITION DROP: Offsets frame location slightly down to stop mobile keyboards lifting menu up
 local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
 local typingPosition = UDim2.new(0.5, 0, 0.5, 45)
+
 UserInputService.TextBoxFocused:Connect(function(textBox)
-if textBox == editor or textBox == pathBox then
-if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-main.Position = typingPosition
-end
-end
-end)
-UserInputService.TextBoxFocusReleased:Connect(function(textBox)
-if textBox == editor or textBox == pathBox then
-if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-main.Position = normalPosition
-end
-end
+	if textBox == editor or textBox == pathBox then
+		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+			main.Position = typingPosition
+		end
+	end
 end)
 
+UserInputService.TextBoxFocusReleased:Connect(function(textBox)
+	if textBox == editor or textBox == pathBox then
+		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+			main.Position = normalPosition
+		end
+	end
+end)
+
+-- INITIALIZATION ENVIRONMENT CHECKER
 local function checkEnvironment()
-local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
-if string.find(string.lower(execName), "xeno") then
-status.TextColor3 = Color3.fromRGB(255, 100, 100)
+	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
+	if string.find(string.lower(execName), "xeno") then
+		status.TextColor3 = Color3.fromRGB(255, 100, 100)
 status.Font = Enum.Font.GothamBold
 status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
 else
