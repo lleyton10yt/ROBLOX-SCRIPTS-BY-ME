@@ -144,8 +144,25 @@ local function resolvePath(pathStr)
 	return current
 end
 
--- FIXED: Alphabetically indexes keys so values are saved/loaded in pristine sequence
-local function tableToString(t, depth)
+-- Helper pattern algorithm matching layouts top-to-bottom
+local function getOriginalKeyOrder(scriptText)
+	local orderMap = {}
+	if not scriptText or scriptText == "" then return orderMap end
+	
+	for line in string.gmatch(scriptText, "[^\r\n]+") do
+		local foundKey = string.match(line, "^%s*([%w_]+)%s*=") or string.match(line, '^%s*%["([%w_]+)"%]%s*=')
+		if foundKey and foundKey ~= "return" and foundKey ~= "tbl" then
+			if not orderMap[foundKey] then
+				table.insert(orderMap, foundKey)
+				orderMap[foundKey] = #orderMap
+			end
+		end
+	end
+	return orderMap
+end
+
+-- Output keys exactly matched to document order rankings
+local function tableToString(t, keyOrder, depth)
 	depth = depth or 0
 	if type(t) ~= "table" then return tostring(t) end
 	local indent = string.rep("  ", depth)
@@ -157,19 +174,21 @@ local function tableToString(t, depth)
 	end
 	
 	table.sort(sortedKeys, function(a, b)
-		if type(a) == type(b) then
-			return tostring(a) < tostring(b)
+		local rankA = keyOrder and keyOrder[tostring(a)] or 9999
+		local rankB = keyOrder and keyOrder[tostring(b)] or 9999
+		if rankA ~= rankB then
+			return rankA < rankB
 		else
-			return type(a) < type(b)
+			return tostring(a) < tostring(b)
 		end
 	end)
 	
 	for _, k in ipairs(sortedKeys) do
 		local v = t[k]
-		local key = type(k) == "string" and '["'..k..'"]' or "["..k.."]"
+		local key = type(k) == "string" and k or "["..k.."]"
 		result = result .. indent .. "  " .. key .. " = "
 		if type(v) == "table" then 
-			result = result .. tableToString(v, depth + 1)
+			result = result .. tableToString(v, keyOrder, depth + 1)
 		elseif type(v) == "string" then 
 			result = result .. '"' .. v .. '"'
 		else 
@@ -187,9 +206,23 @@ loadBtn.MouseButton1Click:Connect(function()
 		status.Text = "Invalid module path"
 		return
 	end
+	
+	local rawText = ""
+	local decompileFunc = decompile or extract_script_source or nil
+	
+	if decompileFunc then
+		pcall(function() rawText = decompileFunc(module) end)
+	end
+	
+	if not rawText or rawText == "" then
+		pcall(function() rawText = module.Source end)
+	end
+	
+	local keyOrder = getOriginalKeyOrder(rawText)
 	local success, data = pcall(require, module)
+	
 	if success and type(data) == "table" then
-		editor.Text = tableToString(data)
+		editor.Text = "return " .. tableToString(data, keyOrder)
 		currentModule = module
 		updateScroll()
 		status.Text = "Loaded: " .. module.Name
@@ -203,14 +236,23 @@ saveBtn.MouseButton1Click:Connect(function()
 		status.Text = "No module loaded"
 		return
 	end
+	
+	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
+	if string.find(string.lower(execName), "xeno") then
+		status.TextColor3 = Color3.fromRGB(255, 75, 75)
+		status.Text = "BLOCKED: Saving on Xeno crashes your game client!"
+		return
+	end
+
 	local textData = editor.Text
 	local function parseTableText(str)
 		local loadFunc = loadstring or false
 		if loadFunc then
-			local formatFunc = loadFunc("return " .. str)
+			local cleanStr = string.gsub(str, "^%s*return%s*", "")
+			local formatFunc = loadFunc("return " .. cleanStr)
 			if formatFunc then return pcall(formatFunc) end
 		end
-		return false, "Loadstring disabled on server."
+		return false, "Loadstring context disabled."
 	end
 	local success, newData = parseTableText(textData)
 	if not success then
@@ -240,14 +282,19 @@ header.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = true
 		dragStart = input.Position
-		startPos = Vector2.new(main.AbsolutePosition.X + (main.AbsoluteSize.X / 2), main.AbsolutePosition.Y + (main.AbsoluteSize.Y / 2))
+		startPos = main.Position
 	end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
 	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 		local delta = input.Position - dragStart
-		main.Position = UDim2.new(0, startPos.X + delta.X, 0, startPos.Y + delta.Y)
+		main.Position = UDim2.new(
+			startPos.X.Scale, 
+			startPos.X.Offset + delta.X, 
+			startPos.Y.Scale, 
+			startPos.Y.Offset + delta.Y
+		)
 	end
 end)
 
@@ -256,3 +303,37 @@ UserInputService.InputEnded:Connect(function(input)
 		dragging = false
 	end
 end)
+
+-- NEW MOBILE OVERRIDE DETECTOR: Pulls menu slightly downwards when active typing begins
+local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
+local typingPosition = UDim2.new(0.5, 0, 0.5, 45) -- Pushes menu 45 pixels DOWN instead of lifting up
+
+UserInputService.TextBoxFocused:Connect(function(textBox)
+	if textBox == editor or textBox == pathBox then
+		-- Verify if device uses touch features (Mobile/Tablet)
+		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+			main.Position = typingPosition
+		end
+	end
+end)
+
+UserInputService.TextBoxFocusReleased:Connect(function(textBox)
+	if textBox == editor or textBox == pathBox then
+		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+			main.Position = normalPosition
+		end
+	end
+end)
+
+-- INITIALIZATION ENVIRONMENT CHECKER
+local function checkEnvironment()
+local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
+if string.find(string.lower(execName), "xeno") then
+status.TextColor3 = Color3.fromRGB(255, 100, 100)
+status.Font = Enum.Font.GothamBold
+status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+else
+status.Text = "Ready (" .. execName .. " checked)"
+end
+end
+checkEnvironment()
