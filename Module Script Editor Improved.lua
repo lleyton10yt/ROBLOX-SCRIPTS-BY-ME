@@ -112,8 +112,18 @@ proxyTrigger.BackgroundTransparency = 1
 proxyTrigger.Text = ""
 proxyTrigger.Parent = scroll
 
+local fullScreenContainer = Instance.new("Frame")
+fullScreenContainer.Size = UDim2.new(1, 0, 1, 0)
+fullScreenContainer.Position = UDim2.new(0, 0, 0, 0)
+fullScreenContainer.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+fullScreenContainer.BackgroundTransparency = 1
+fullScreenContainer.BorderSizePixel = 0
+fullScreenContainer.Visible = false
+fullScreenContainer.ZIndex = 10
+fullScreenContainer.Parent = gui
+
 local proxyBox = Instance.new("TextBox")
-proxyBox.Size = UDim2.new(1, 0, 0.45, 0)
+proxyBox.Size = UDim2.new(1, 0, 0.25, 0)
 proxyBox.Position = UDim2.new(0, 0, 0, 0)
 proxyBox.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 proxyBox.TextColor3 = Color3.new(1, 1, 1)
@@ -123,8 +133,9 @@ proxyBox.ClearTextOnFocus = false
 proxyBox.MultiLine = true
 proxyBox.TextXAlignment = Enum.TextXAlignment.Left
 proxyBox.TextYAlignment = Enum.TextYAlignment.Top
-proxyBox.Visible = false
-proxyBox.Parent = gui
+proxyBox.BorderSizePixel = 0
+proxyBox.ZIndex = 11
+proxyBox.Parent = fullScreenContainer
 
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -20, 0, 15)
@@ -193,6 +204,12 @@ local function tableToStringFallback(t, depth)
 	return result .. indent .. "}"
 end
 
+local function syncActiveEditorView(text)
+	editorCanvas.Text = text
+	proxyBox.Text = text
+	updateScroll()
+end
+
 loadBtn.MouseButton1Click:Connect(function()
 	local path = pathBox.Text
 	local module = resolvePath(path)
@@ -217,19 +234,15 @@ loadBtn.MouseButton1Click:Connect(function()
 	end
 	
 	if sourceText and sourceText ~= "" and not string.find(sourceText, "decompilation panicked") then
-		editorCanvas.Text = sourceText
-		proxyBox.Text = sourceText
 		currentModule = module
-		updateScroll()
+		syncActiveEditorView(sourceText)
 		status.Text = "Loaded Raw Source: " .. module.Name
 	else
 		local success, data = pcall(require, module)
 		if success and type(data) == "table" then
 			local output = "return " .. tableToStringFallback(data)
-			editorCanvas.Text = output
-			proxyBox.Text = output
 			currentModule = module
-			updateScroll()
+			syncActiveEditorView(output)
 			status.Text = "Loaded Memory Fallback: " .. module.Name
 		else
 			status.Text = "Decompiler panicked and runtime require failed"
@@ -263,9 +276,20 @@ saveBtn.MouseButton1Click:Connect(function()
 end)
 
 proxyTrigger.MouseButton1Click:Connect(function()
+	local mousePos = UserInputService:GetMouseLocation()
+	local relativeY = mousePos.Y - scroll.AbsolutePosition.Y + scroll.CanvasPosition.Y
+	local lineIndex = math.clamp(math.floor(relativeY / 18) + 1, 1, #string.split(proxyBox.Text, "\n"))
+	
 	main.Visible = false
-	proxyBox.Visible = true
+	fullScreenContainer.Visible = true
 	proxyBox:CaptureFocus()
+	
+	local textLines = string.split(proxyBox.Text, "\n")
+	local cursorTargetPosition = 0
+	for i = 1, lineIndex - 1 do
+		cursorTargetPosition = cursorTargetPosition + string.len(textLines[i]) + 1
+	end
+	proxyBox.CursorPosition = cursorTargetPosition + 1
 end)
 
 proxyBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -274,7 +298,7 @@ proxyBox:GetPropertyChangedSignal("Text"):Connect(function()
 end)
 
 proxyBox.FocusLost:Connect(function()
-	proxyBox.Visible = false
+	fullScreenContainer.Visible = false
 	main.Visible = true
 end)
 
@@ -298,25 +322,23 @@ UserInputService.InputChanged:Connect(function(input)
 		local delta = input.Position - dragStart
 		main.Position = UDim2.new(
 			startPos.X.Scale, startPos.X.Offset + delta.X, 
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y
-		)
-	end
+startPos.Y.Scale, startPos.Y.Offset + delta.Y
+)
+end
 end)
-
 UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = false
-	end
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+dragging = false
+end
 end)
-
 local function checkEnvironment()
-	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
-	if string.find(string.lower(execName), "xeno") then
-		status.TextColor3 = Color3.fromRGB(255, 100, 100)
-		status.Font = Enum.Font.GothamBold
-		status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
-	else
-		status.Text = "Ready (" .. execName .. " checked)"
-	end
+local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
+if string.find(string.lower(execName), "xeno") then
+status.TextColor3 = Color3.fromRGB(255, 100, 100)
+status.Font = Enum.Font.GothamBold
+status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+else
+status.Text = "Ready (" .. execName .. " checked)"
+end
 end
 checkEnvironment()
