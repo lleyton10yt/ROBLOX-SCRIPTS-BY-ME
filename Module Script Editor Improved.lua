@@ -135,7 +135,7 @@ local function resolvePath(pathStr)
 	local segments = string.split(pathStr, ".")
 	local current = game
 	local startIdx = 1
-	if segments == "game" then startIdx = 2 end
+	if segments[1] == "game" then startIdx = 2 end
 	
 	for i = startIdx, #segments do
 		local success, found = pcall(function() return current:FindFirstChild(segments[i]) end)
@@ -144,53 +144,65 @@ local function resolvePath(pathStr)
 	return current
 end
 
-local function parseScriptTopToBottom(scriptText)
-	local orderedKeys = {}
-	local tracker = {}
-	if not scriptText or scriptText == "" then return orderedKeys end
+local function getDeltaMemorySequence(module)
+	local orderMap = {}
+	local getgcFunc = getgc or nil
+	if not getgcFunc then return orderMap end
 	
-	for line in string.gmatch(scriptText, "[^\r\n]+") do
-		local foundKey = string.match(line, "^%s*([%w_]+)%s*=") or string.match(line, '^%s*%["([%w_]+)"%]%s*=')
-		if foundKey and foundKey ~= "return" and foundKey ~= "tbl" and foundKey ~= "local" then
-			if not tracker[foundKey] then
-				table.insert(orderedKeys, foundKey)
-				tracker[foundKey] = true
+	local success, objects = pcall(getgcFunc)
+	if not success or type(objects) ~= "table" then return orderMap end
+	
+	for _, obj in pairs(objects) do
+		if type(obj) == "function" and islclosure(obj) then
+			local info = debug.getinfo(obj)
+			if info and info.source and string.find(info.source, module.Name) then
+				local idx = 1
+				while true do
+					local name, val = debug.getupvalue(obj, idx)
+					if not name then break end
+					if type(val) == "string" and not orderMap[val] then
+						table.insert(orderMap, val)
+						orderMap[val] = #orderMap
+					end
+					idx = idx + 1
+				end
 			end
 		end
 	end
-	return orderedKeys
+	return orderMap
 end
 
-local function buildTableText(t, orderedKeys, depth)
+local function buildTableText(t, sequenceMap, depth)
 	depth = depth or 0
 	if type(t) ~= "table" then return tostring(t) end
 	local indent = string.rep("  ", depth)
 	local result = "{\n"
 	
-	local finalKeys = orderedKeys
-	if not finalKeys or #finalKeys == 0 then
-		finalKeys = {}
-		for k, _ in pairs(t) do
-			table.insert(finalKeys, tostring(k))
-		end
+	local keys = {}
+	for k, _ in pairs(t) do
+		table.insert(keys, k)
 	end
 	
-	for _, k in ipairs(finalKeys) do
-		local rawKey = tonumber(k) or k
-		local v = t[rawKey]
-		
-		if v ~= nil then
-			local key = type(rawKey) == "string" and rawKey or "["..tostring(rawKey).."]"
-			result = result .. indent .. "  " .. key .. " = "
-			if type(v) == "table" then 
-				result = result .. buildTableText(v, orderedKeys, depth + 1)
-			elseif type(v) == "string" then 
-				result = result .. '"' .. v .. '"'
-			else 
-				result = result .. tostring(v) 
-			end
-			result = result .. ",\n"
+	if sequenceMap and next(sequenceMap) ~= nil then
+		table.sort(keys, function(a, b)
+			local rankA = sequenceMap[tostring(a)] or 9999
+			local rankB = sequenceMap[tostring(b)] or 9999
+			return rankA < rankB
+		end)
+	end
+	
+	for _, k in ipairs(keys) do
+		local v = t[k]
+		local key = type(k) == "string" and k or "["..tostring(k).."]"
+		result = result .. indent .. "  " .. key .. " = "
+		if type(v) == "table" then 
+			result = result .. buildTableText(v, sequenceMap, depth + 1)
+		elseif type(v) == "string" then 
+			result = result .. '"' .. v .. '"'
+		else 
+			result = result .. tostring(v) 
 		end
+		result = result .. ",\n"
 	end
 	return result .. indent .. "}"
 end
@@ -203,14 +215,11 @@ loadBtn.MouseButton1Click:Connect(function()
 		return
 	end
 	
-	local rawText = ""
-	pcall(function() rawText = module.Source end)
-	
-	local orderedKeys = parseScriptTopToBottom(rawText)
+	local sequenceMap = getDeltaMemorySequence(module)
 	local success, data = pcall(require, module)
 	
 	if success and type(data) == "table" then
-		editor.Text = "return " .. buildTableText(data, orderedKeys)
+		editor.Text = "return " .. buildTableText(data, sequenceMap)
 		currentModule = module
 		updateScroll()
 		status.Text = "Loaded Structure: " .. module.Name
