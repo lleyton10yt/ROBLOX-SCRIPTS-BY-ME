@@ -1162,7 +1162,7 @@ local peeloutActive = false
 local peeloutButton = Instance.new("TextButton")
 peeloutButton.Name = "ToggleAllCharactersPeeloutButton"
 peeloutButton.Size = UDim2.new(1, -40, 0, isMobile and 38 or 50)
-peeloutButton.LayoutOrder = 2
+peeloutButton.LayoutOrder = 3
 peeloutButton.BackgroundColor3 = Color3.fromRGB(80, 20, 140) -- Darker purple for OFF state
 peeloutButton.BackgroundTransparency = 0.1
 peeloutButton.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -1196,7 +1196,7 @@ local instaShieldActive = false
 local instaShieldButton = Instance.new("TextButton")
 instaShieldButton.Name = "ToggleSomeCharactersInstaShieldButton"
 instaShieldButton.Size = UDim2.new(1, -40, 0, isMobile and 38 or 50)
-instaShieldButton.LayoutOrder = 3
+instaShieldButton.LayoutOrder = 4
 instaShieldButton.BackgroundColor3 = Color3.fromRGB(80, 20, 140)
 instaShieldButton.BackgroundTransparency = 0.1
 instaShieldButton.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -1228,16 +1228,28 @@ instaShieldButton.MouseButton1Click:Connect(function()
 	end
 end)
 
-
+-- NOTE
+local visualNoteLabel2 = Instance.new("TextLabel")
+visualNoteLabel2.Name = "EXECUTORWARNING"
+visualNoteLabel2.Size = UDim2.new(1, -40, 0, isMobile and 45 or 55)
+visualNoteLabel2.LayoutOrder = 1
+visualNoteLabel2.BackgroundTransparency = 1
+visualNoteLabel2.Text = "THESE FUNCTIONS ONLY WORK ON DELTA ANY OTHER EXECUTOR WILL BREAK THE GAME!"
+visualNoteLabel2.TextColor3 = Color3.fromRGB(255, 0, 0)
+visualNoteLabel2.TextSize = isMobile and 11 or 13
+visualNoteLabel2.Font = Enum.Font.SourceSansItalic
+visualNoteLabel2.TextWrapped = true
+visualNoteLabel2.BorderSizePixel = 0
+visualNoteLabel2.Parent = visualScroll
 
 -- NOTE
 local visualNoteLabel = Instance.new("TextLabel")
 visualNoteLabel.Name = "VisualAbilityNoteLabel"
 visualNoteLabel.Size = UDim2.new(1, -40, 0, isMobile and 45 or 55)
-visualNoteLabel.LayoutOrder = 1
+visualNoteLabel.LayoutOrder = 2
 visualNoteLabel.BackgroundTransparency = 1
 visualNoteLabel.Text = "Note: Insta-shield overrides flying and gliding animations. Toggling features off safely restores characters back to their baseline properties."
-visualNoteLabel.TextColor3 = Color3.fromRGB(220, 200, 245)
+visualNoteLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
 visualNoteLabel.TextSize = isMobile and 11 or 13
 visualNoteLabel.Font = Enum.Font.SourceSansItalic
 visualNoteLabel.TextWrapped = true
