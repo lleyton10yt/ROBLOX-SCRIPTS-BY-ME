@@ -567,7 +567,7 @@ addCreatorObjectButton("Big Angel Island Breakable Rock", 145, UDim2.new(0, 24, 
 addCreatorObjectButton("Medium Angel Island Breakable Rock", 144, nil, nil, 16)
 addCreatorObjectButton("Small Angel Island Breakable Rock (Jump to Break)", 146, nil, nil, 17)
 addCreatorObjectButton("Small Angel Island Breakable Rock (Spindash to Break)", 143, nil, nil, 18)
-addCreatorObjectButton("custom object test - ID 440", 440, nil, nil, 19)
+addCreatorObjectButton("ID 440", 440, nil, nil, 19)
 addCreatorObjectButton("Solid Wall 4", 373, nil, nil, 20)
 addCreatorObjectButton("Solid Wall 5", 374, nil, nil, 21)
 addCreatorObjectButton("Triple Rotating Bumpers", 514, nil, nil, 22)
