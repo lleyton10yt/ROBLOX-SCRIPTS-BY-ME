@@ -278,29 +278,38 @@ saveBtn.MouseButton1Click:Connect(function()
 		return
 	end
 	
-	local isXenoLocked = false
+	local textData = proxyBox.Text
+	
+	-- LOCK BYPASS DETECTOR: Swaps the instance dynamically to overwrite the protection reflected script file
+	local oldParent = currentModule.Parent
+	local oldName = currentModule.Name
+	
 	if Xeno and type(Xeno) == "table" and Xeno.UnlockModule then
-		pcall(function()
-			Xeno.UnlockModule(currentModule)
-			isXenoLocked = true
-		end)
+		pcall(function() Xeno.UnlockModule(currentModule) end)
 	end
 
-	local textData = proxyBox.Text
-	local success, _ = pcall(function()
+	local success = false
+	pcall(function()
 		currentModule.Source = textData
+		success = true
 	end)
 	
-	if isXenoLocked and Xeno and Xeno.LockModule then
+	if not success or currentModule.Source ~= textData then
 		pcall(function()
-			Xeno.LockModule(currentModule)
+			local newModule = Instance.new("ModuleScript")
+			newModule.Name = oldName
+			newModule.Source = textData
+			currentModule:Destroy()
+			newModule.Parent = oldParent
+			currentModule = newModule
+			success = true
 		end)
 	end
 	
 	if success then
-		status.Text = "Saved raw text successfully!"
+		status.Text = "Saved raw text successfully via Swap Hook!"
 	else
-		status.Text = "Write protection error on current context"
+		status.Text = "Delta write protection error on current context"
 	end
 end)
 
@@ -328,17 +337,16 @@ proxyBox:GetPropertyChangedSignal("Text"):Connect(function()
 end)
 
 proxyBox.FocusLost:Connect(function()
-	fullScreenContainer.Visible = false
-	main.Visible = true
+fullScreenContainer.Visible = false
+main.Visible = true
 end)
-
 local dragging, dragStart, startPos
 header.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = true
-		dragStart = input.Position
-		startPos = main.Position
-	end
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+dragging = true
+dragStart = input.Position
+startPos = main.Position
+end
 end)
 UserInputService.InputChanged:Connect(function(input)
 if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
@@ -359,7 +367,7 @@ local execName = (identifyexecutor or getexecutorname or function() return "Unkn
 if string.find(string.lower(execName), "xeno") or (Xeno and type(Xeno) == "table") then
 status.TextColor3 = Color3.fromRGB(100, 255, 100)
 status.Font = Enum.Font.GothamBold
-status.Text = "Xeno Detected: Auto-Unlock on to see if it works idk"
+status.Text = "Xeno Detected: Swap Overwrite Hooks Armed!"
 else
 status.Text = "Ready (" .. execName .. " checked)"
 end
