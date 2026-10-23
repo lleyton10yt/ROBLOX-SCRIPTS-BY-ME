@@ -4,6 +4,7 @@ local CoreGui = game:GetService("CoreGui")
 local gui = Instance.new("ScreenGui")
 gui.Name = "ModuleEditor"
 gui.ResetOnSpawn = false
+gui.ClipToDeviceSafeArea = false
 gui.Parent = CoreGui
 
 local main = Instance.new("Frame")
@@ -12,6 +13,7 @@ main.Position = UDim2.new(0.5, 0, 0.5, 0)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 main.BorderSizePixel = 0
+main.Active = true
 main.Parent = gui
 
 local sizeConstraint = Instance.new("UISizeConstraint")
@@ -276,22 +278,23 @@ UserInputService.InputEnded:Connect(function(input)
 	end
 end)
 
-local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
-local typingPosition = UDim2.new(0.5, 0, 0.5, 45)
+local lockPosition = UDim2.new(0.5, 0, 0.5, 0)
+local function keepInBounds()
+	if main.Position ~= lockPosition then
+		main.Position = lockPosition
+	end
+end
 
 UserInputService.TextBoxFocused:Connect(function(textBox)
-	if textBox == pathBox then
-		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-			main.Position = typingPosition
-		end
+	if textBox == editor then
+		main.Position = lockPosition
+		main:GetPropertyChangedSignal("Position"):Connect(keepInBounds)
 	end
 end)
 
 UserInputService.TextBoxFocusReleased:Connect(function(textBox)
-	if textBox == pathBox then
-		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-			main.Position = normalPosition
-		end
+	if textBox == editor then
+		main.Position = lockPosition
 	end
 end)
 
