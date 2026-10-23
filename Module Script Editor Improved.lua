@@ -113,7 +113,7 @@ proxyTrigger.Text = ""
 proxyTrigger.Parent = scroll
 
 local proxyBox = Instance.new("TextBox")
-proxyBox.Size = UDim2.new(1, 0, 1, -20)
+proxyBox.Size = UDim2.new(1, 0, 1, 0)
 proxyBox.Position = UDim2.new(0, 0, 0, 0)
 proxyBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 proxyBox.TextColor3 = Color3.new(1, 1, 1)
@@ -141,7 +141,8 @@ local isVisible = true
 
 local function updateScroll()
 	local lines = #string.split(editorCanvas.Text, "\n")
-	scroll.CanvasSize = UDim2.new(0, 1000, 0, lines * 18)
+	scroll.CanvasSize = UDim2.new(0, 1000, 0, (lines * 18) + 120)
+	proxyBox.Size = UDim2.new(1, 0, 0, lines * 18)
 end
 
 local function toggleVisibility()
@@ -332,8 +333,8 @@ local function checkEnvironment()
 	if string.find(string.lower(execName), "xeno") then
 		status.TextColor3 = Color3.fromRGB(255, 100, 100)
 		status.Font = Enum.Font.GothamBold
-		status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
-	else
+status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+else
 status.Text = "Ready (" .. execName .. " checked)"
 end
 end
