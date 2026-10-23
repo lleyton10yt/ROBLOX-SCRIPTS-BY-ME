@@ -135,7 +135,7 @@ local function resolvePath(pathStr)
 	local segments = string.split(pathStr, ".")
 	local current = game
 	local startIdx = 1
-	if segments[1] == "game" then startIdx = 2 end
+	if segments == "game" then startIdx = 2 end
 	
 	for i = startIdx, #segments do
 		local success, found = pcall(function() return current:FindFirstChild(segments[i]) end)
@@ -144,65 +144,53 @@ local function resolvePath(pathStr)
 	return current
 end
 
--- NEW MOBILE STRUCTURE DISCOVERY: Bypasses string parsing by tracking memory slots directly
-local function discoverDeltaStructure(t)
-	local orderMap = {}
-	if type(t) ~= "table" then return orderMap end
+local function parseScriptTopToBottom(scriptText)
+	local orderedKeys = {}
+	local tracker = {}
+	if not scriptText or scriptText == "" then return orderedKeys end
 	
-	-- Map numeric indices first (they hold their structural order seamlessly)
-	for i, _ in ipairs(t) do
-		orderMap[tostring(i)] = i
-	end
-	
-	-- Map string-based configuration keys by intercepting their internal raw layout slot positions
-	local positionIndex = 100
-	for k, _ in pairs(t) do
-		local keyStr = tostring(k)
-		if not orderMap[keyStr] then
-			orderMap[keyStr] = positionIndex
-			positionIndex = positionIndex + 1
+	for line in string.gmatch(scriptText, "[^\r\n]+") do
+		local foundKey = string.match(line, "^%s*([%w_]+)%s*=") or string.match(line, '^%s*%["([%w_]+)"%]%s*=')
+		if foundKey and foundKey ~= "return" and foundKey ~= "tbl" and foundKey ~= "local" then
+			if not tracker[foundKey] then
+				table.insert(orderedKeys, foundKey)
+				tracker[foundKey] = true
+			end
 		end
 	end
-	return orderMap
+	return orderedKeys
 end
 
--- Generates code blocks string outputs matching structured sequence indices
-local function tableToString(t, depth)
+local function buildTableText(t, orderedKeys, depth)
 	depth = depth or 0
 	if type(t) ~= "table" then return tostring(t) end
 	local indent = string.rep("  ", depth)
 	local result = "{\n"
 	
-	local sortedKeys = {}
-	for k in pairs(t) do
-		table.insert(sortedKeys, k)
+	local finalKeys = orderedKeys
+	if not finalKeys or #finalKeys == 0 then
+		finalKeys = {}
+		for k, _ in pairs(t) do
+			table.insert(finalKeys, tostring(k))
+		end
 	end
 	
-	-- Intercept dynamic structure sequence maps
-	local structuralSequence = discoverDeltaStructure(t)
-	
-	table.sort(sortedKeys, function(a, b)
-		local rankA = structuralSequence[tostring(a)] or 9999
-		local rankB = structuralSequence[tostring(b)] or 9999
-		if rankA ~= rankB then
-			return rankA < rankB -- Stops sorting keys alphabetically (ABC Style)
-		else
-			return tostring(a) < tostring(b)
+	for _, k in ipairs(finalKeys) do
+		local rawKey = tonumber(k) or k
+		local v = t[rawKey]
+		
+		if v ~= nil then
+			local key = type(rawKey) == "string" and rawKey or "["..tostring(rawKey).."]"
+			result = result .. indent .. "  " .. key .. " = "
+			if type(v) == "table" then 
+				result = result .. buildTableText(v, orderedKeys, depth + 1)
+			elseif type(v) == "string" then 
+				result = result .. '"' .. v .. '"'
+			else 
+				result = result .. tostring(v) 
+			end
+			result = result .. ",\n"
 		end
-	end)
-	
-	for _, k in ipairs(sortedKeys) do
-		local v = t[k]
-		local key = type(k) == "string" and k or "["..tostring(k).."]"
-		result = result .. indent .. "  " .. key .. " = "
-		if type(v) == "table" then 
-			result = result .. tableToString(v, depth + 1)
-		elseif type(v) == "string" then 
-			result = result .. '"' .. v .. '"'
-		else 
-			result = result .. tostring(v) 
-		end
-		result = result .. ",\n"
 	end
 	return result .. indent .. "}"
 end
@@ -215,12 +203,17 @@ loadBtn.MouseButton1Click:Connect(function()
 		return
 	end
 	
+	local rawText = ""
+	pcall(function() rawText = module.Source end)
+	
+	local orderedKeys = parseScriptTopToBottom(rawText)
 	local success, data = pcall(require, module)
+	
 	if success and type(data) == "table" then
-		editor.Text = "return " .. tableToString(data)
+		editor.Text = "return " .. buildTableText(data, orderedKeys)
 		currentModule = module
 		updateScroll()
-		status.Text = "Loaded: " .. module.Name
+		status.Text = "Loaded Structure: " .. module.Name
 	else
 		status.Text = "Module doesn't return a table"
 	end
@@ -299,7 +292,6 @@ UserInputService.InputEnded:Connect(function(input)
 	end
 end)
 
--- MOBILE UI POSITION DROP: Offsets frame location slightly down to stop mobile keyboards lifting menu up
 local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
 local typingPosition = UDim2.new(0.5, 0, 0.5, 45)
 
@@ -319,15 +311,14 @@ UserInputService.TextBoxFocusReleased:Connect(function(textBox)
 	end
 end)
 
--- INITIALIZATION ENVIRONMENT CHECKER
 local function checkEnvironment()
 	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
 	if string.find(string.lower(execName), "xeno") then
 		status.TextColor3 = Color3.fromRGB(255, 100, 100)
-status.Font = Enum.Font.GothamBold
-status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
-else
-status.Text = "Ready (" .. execName .. " checked)"
-end
+		status.Font = Enum.Font.GothamBold
+		status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+	else
+		status.Text = "Ready (" .. execName .. " checked)"
+	end
 end
 checkEnvironment()
