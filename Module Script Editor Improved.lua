@@ -4,12 +4,11 @@ local CoreGui = game:GetService("CoreGui")
 local gui = Instance.new("ScreenGui")
 gui.Name = "ModuleEditor"
 gui.ResetOnSpawn = false
-gui.ClipToDeviceSafeArea = false
 gui.Parent = CoreGui
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0.55, 0, 0.45, 0)
-main.Position = UDim2.new(0.5, 0, 0.22, 0)
+main.Size = UDim2.new(0.65, 0, 0.45, 0)
+main.Position = UDim2.new(0.5, 0, 0.25, 0)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 main.BorderSizePixel = 0
@@ -18,7 +17,7 @@ main.Parent = gui
 
 local sizeConstraint = Instance.new("UISizeConstraint")
 sizeConstraint.MinSize = Vector2.new(450, 200) 
-sizeConstraint.MaxSize = Vector2.new(850, 400) 
+sizeConstraint.MaxSize = Vector2.new(850, 450) 
 sizeConstraint.Parent = main
 
 local header = Instance.new("Frame")
@@ -57,7 +56,7 @@ pathBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 pathBox.TextColor3 = Color3.new(1, 1, 1)
 pathBox.Font = Enum.Font.Code
 pathBox.TextSize = 12
-pathBox.Text = "Enter the path of the module script here to edit it."
+pathBox.Text = "Workspace.ModuleScript"
 pathBox.ClearTextOnFocus = false
 pathBox.Parent = main
 
@@ -95,20 +94,34 @@ scroll.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 scroll.ScrollBarThickness = 6
 scroll.Parent = main
 
-local editor = Instance.new("TextBox")
-editor.Size = UDim2.new(1, -6, 1, 0)
-editor.BackgroundTransparency = 1
-editor.TextColor3 = Color3.new(1, 1, 1)
-editor.Font = Enum.Font.Code
-editor.TextSize = 13
-editor.MultiLine = true
-editor.TextXAlignment = Enum.TextXAlignment.Left
-editor.TextYAlignment = Enum.TextYAlignment.Top
-editor.Text = ""
-editor.ClearTextOnFocus = false
-editor.TextWrapped = false
-editor.ClipsDescendants = false
-editor.Parent = scroll
+local editorCanvas = Instance.new("TextLabel")
+editorCanvas.Size = UDim2.new(1, -6, 1, 0)
+editorCanvas.BackgroundTransparency = 1
+editorCanvas.TextColor3 = Color3.new(1, 1, 1)
+editorCanvas.Font = Enum.Font.Code
+editorCanvas.TextSize = 13
+editorCanvas.TextXAlignment = Enum.TextXAlignment.Left
+editorCanvas.TextYAlignment = Enum.TextYAlignment.Top
+editorCanvas.Text = ""
+editorCanvas.Parent = scroll
+
+local proxyTrigger = Instance.new("TextButton")
+proxyTrigger.Size = UDim2.new(1, 0, 1, 0)
+proxyTrigger.BackgroundTransparency = 1
+proxyTrigger.Text = ""
+proxyTrigger.Parent = scroll
+
+local proxyBox = Instance.new("TextBox")
+proxyBox.Size = UDim2.new(1, -20, 0, 30)
+proxyBox.Position = UDim2.new(0, 10, 0, -100)
+proxyBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+proxyBox.TextColor3 = Color3.new(1, 1, 1)
+proxyBox.Font = Enum.Font.Code
+proxyBox.TextSize = 14
+proxyBox.ClearTextOnFocus = false
+proxyBox.MultiLine = true
+proxyBox.Visible = false
+proxyBox.Parent = main
 
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -20, 0, 15)
@@ -124,7 +137,7 @@ local currentModule
 local isVisible = true
 
 local function updateScroll()
-	local lines = #string.split(editor.Text, "\n")
+	local lines = #string.split(editorCanvas.Text, "\n")
 	scroll.CanvasSize = UDim2.new(0, 1000, 0, lines * 18)
 end
 
@@ -201,14 +214,17 @@ loadBtn.MouseButton1Click:Connect(function()
 	end
 	
 	if sourceText and sourceText ~= "" and not string.find(sourceText, "decompilation panicked") then
-		editor.Text = sourceText
+		editorCanvas.Text = sourceText
+		proxyBox.Text = sourceText
 		currentModule = module
 		updateScroll()
 		status.Text = "Loaded Raw Source: " .. module.Name
 	else
 		local success, data = pcall(require, module)
 		if success and type(data) == "table" then
-			editor.Text = "return " .. tableToStringFallback(data)
+			local output = "return " .. tableToStringFallback(data)
+			editorCanvas.Text = output
+			proxyBox.Text = output
 			currentModule = module
 			updateScroll()
 			status.Text = "Loaded Memory Fallback: " .. module.Name
@@ -231,7 +247,7 @@ saveBtn.MouseButton1Click:Connect(function()
 		return
 	end
 
-	local textData = editor.Text
+	local textData = proxyBox.Text
 	local success, _ = pcall(function()
 		currentModule.Source = textData
 	end)
@@ -243,7 +259,20 @@ saveBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
-editor:GetPropertyChangedSignal("Text"):Connect(updateScroll)
+proxyTrigger.MouseButton1Click:Connect(function()
+	proxyBox.Visible = true
+	proxyBox.Position = UDim2.new(0, 10, 0, -45)
+	proxyBox:CaptureFocus()
+end)
+
+proxyBox:GetPropertyChangedSignal("Text"):Connect(function()
+	editorCanvas.Text = proxyBox.Text
+	updateScroll()
+end)
+
+proxyBox.FocusLost:Connect(function()
+	proxyBox.Visible = false
+end)
 
 UserInputService.InputBegan:Connect(function(input, processed)
 	if not processed and input.KeyCode == Enum.KeyCode.Home then
