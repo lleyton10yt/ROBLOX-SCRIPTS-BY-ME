@@ -853,12 +853,6 @@ addCreatorObjectButton("Platform", 217, nil, nil, 802)
 addCreatorObjectButton("Bridge", 214, nil, nil, 803)
 addCreatorObjectButton("Bridge Support", 532, nil, nil, 804)
 
-addCreatorObjectButton("Bridge Support", 532, nil, nil, 804)
-
-
-
-
-
 -- SKINS VIEW
 local skinsScroll = Instance.new("ScrollingFrame")
 skinsScroll.Size = UDim2.new(1, 0, 1, 0)
