@@ -144,110 +144,6 @@ local function resolvePath(pathStr)
 	return current
 end
 
-local function readModuleTextStream(module)
-	local output = ""
-	local savefileFunc = savefile or writefile
-	local readfileFunc = readfile
-	
-	if savefileFunc and readfileFunc then
-		pcall(function()
-			savefileFunc("DeltaModuleCache.txt", "")
-			local cl = module:Clone()
-			cl.Name = "DeltaModuleCache"
-			cl.Parent = game:GetService("Workspace")
-			
-			if decompile then
-				output = decompile(cl)
-			elseif cl.Source and cl.Source ~= "" then
-				output = cl.Source
-			end
-			cl:Destroy()
-		end)
-	end
-	return output
-end
-
-local function parseScriptStructure(scriptText)
-	local globalOrder = {}
-	local scopeStack = { globalOrder }
-	
-	if not scriptText or scriptText == "" then return globalOrder end
-	
-	for line in string.gmatch(scriptText, "[^\r\n]+") do
-		local cleaned = string.gsub(line, "%s+", "")
-		
-		for _ in string.gmatch(line, "{") do
-			local newScope = {}
-			table.insert(scopeStack[#scopeStack], newScope)
-			table.insert(scopeStack, newScope)
-		end
-		
-		local key = string.match(line, "^%s*([%w_]+)%s*=") or string.match(line, '^%s*%["([%w_]+)"%]%s*=')
-		if key and key ~= "return" and key ~= "local" then
-			table.insert(scopeStack[#scopeStack], key)
-		end
-		
-		for _ in string.gmatch(line, "}") do
-			if #scopeStack > 1 then
-				table.remove(scopeStack)
-			end
-		end
-	end
-	return globalOrder
-end
-
-local function buildStructuredText(t, structure, depth)
-	depth = depth or 0
-	if type(t) ~= "table" then return tostring(t) end
-	local indent = string.rep("  ", depth)
-	local result = "{\n"
-	
-	local usedKeys = {}
-	local nestedIndex = 1
-	
-	if structure then
-		for _, node in ipairs(structure) do
-			if type(node) == "string" then
-				local rawKey = tonumber(node) or node
-				local v = t[rawKey]
-				if v ~= nil and not usedKeys[rawKey] then
-					usedKeys[rawKey] = true
-					local key = type(rawKey) == "string" and rawKey or "["..tostring(rawKey).."]"
-					result = result .. indent .. "  " .. key .. " = "
-					if type(v) == "table" then
-						local subStructure = structure[nestedIndex + 1]
-						result = result .. buildStructuredText(v, type(subStructure) == "table" and subStructure or nil, depth + 1)
-					elseif type(v) == "string" then
-						result = result .. '"' .. v .. '"'
-					else
-						result = result .. tostring(v)
-					end
-					result = result .. ",\n"
-				end
-			elseif type(node) == "table" then
-				nestedIndex = nestedIndex + 1
-			end
-		end
-	end
-	
-	for k, v in pairs(t) do
-		if not usedKeys[k] then
-			local key = type(k) == "string" and k or "["..tostring(k).."]"
-			result = result .. indent .. "  " .. key .. " = "
-			if type(v) == "table" then
-				result = result .. buildStructuredText(v, nil, depth + 1)
-			elseif type(v) == "string" then
-				result = result .. '"' .. v .. '"'
-			else
-				result = result .. tostring(v)
-			end
-			result = result .. ",\n"
-		end
-	end
-	
-	return result .. indent .. "}"
-end
-
 loadBtn.MouseButton1Click:Connect(function()
 	local path = pathBox.Text
 	local module = resolvePath(path)
@@ -256,17 +152,24 @@ loadBtn.MouseButton1Click:Connect(function()
 		return
 	end
 	
-	local rawText = readModuleTextStream(module)
-	local structure = parseScriptStructure(rawText)
-	local success, data = pcall(require, module)
+	local sourceText = nil
 	
-	if success and type(data) == "table" then
-		editor.Text = "return " .. buildStructuredText(data, structure)
+	local decompileFunc = decompile or extract_script_source or nil
+	if decompileFunc then
+		pcall(function() sourceText = decompileFunc(module) end)
+	end
+	
+	if not sourceText or sourceText == "" then
+		pcall(function() sourceText = module.Source end)
+	end
+	
+	if sourceText and sourceText ~= "" then
+		editor.Text = sourceText
 		currentModule = module
 		updateScroll()
-		status.Text = "Loaded: " .. module.Name
+		status.Text = "Loaded Raw Source: " .. module.Name
 	else
-		status.Text = "Module load error"
+		status.Text = "Failed to fetch source text"
 	end
 end)
 
@@ -284,27 +187,15 @@ saveBtn.MouseButton1Click:Connect(function()
 	end
 
 	local textData = editor.Text
-	local function parseTableText(str)
-		local loadFunc = loadstring or false
-		if loadFunc then
-			local cleanStr = string.gsub(str, "^%s*return%s*", "")
-			local formatFunc = loadFunc("return " .. cleanStr)
-			if formatFunc then return pcall(formatFunc) end
-		end
-		return false, "Loadstring context disabled."
-	end
-	local success, newData = parseTableText(textData)
-	if not success then
-		status.Text = "Invalid table format"
-		return
-	end
-	local moduleData = require(currentModule)
-	if type(moduleData) == "table" then
-		for k in pairs(moduleData) do moduleData[k] = nil end
-		for k, v in pairs(newData) do moduleData[k] = v end
-		status.Text = "Saved successfully"
+	
+	local success, _ = pcall(function()
+		currentModule.Source = textData
+	end)
+	
+	if success then
+		status.Text = "Saved source file successfully!"
 	else
-		status.Text = "Save failed"
+		status.Text = "Write protection error"
 	end
 end)
 
@@ -338,34 +229,38 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-dragging = false
-end
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = false
+	end
 end)
+
 local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
 local typingPosition = UDim2.new(0.5, 0, 0.5, 45)
+
 UserInputService.TextBoxFocused:Connect(function(textBox)
-if textBox == editor or textBox == pathBox then
-if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-main.Position = typingPosition
-end
-end
+	if textBox == editor or textBox == pathBox then
+		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+			main.Position = typingPosition
+		end
+	end
 end)
+
 UserInputService.TextBoxFocusReleased:Connect(function(textBox)
-if textBox == editor or textBox == pathBox then
-if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-main.Position = normalPosition
-end
-end
+	if textBox == editor or textBox == pathBox then
+		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+			main.Position = normalPosition
+		end
+	end
 end)
+
 local function checkEnvironment()
-local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
-if string.find(string.lower(execName), "xeno") then
-status.TextColor3 = Color3.fromRGB(255, 100, 100)
-status.Font = Enum.Font.GothamBold
-status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
-else
-status.Text = "Ready (" .. execName .. " checked)"
-end
+	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
+	if string.find(string.lower(execName), "xeno") then
+		status.TextColor3 = Color3.fromRGB(255, 100, 100)
+		status.Font = Enum.Font.GothamBold
+		status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+	else
+		status.Text = "Ready (" .. execName .. " checked)"
+	end
 end
 checkEnvironment()
