@@ -144,6 +144,37 @@ local function resolvePath(pathStr)
 	return current
 end
 
+local function tableToStringFallback(t, depth)
+	depth = depth or 0
+	if type(t) ~= "table" then return tostring(t) end
+	local indent = string.rep("  ", depth)
+	local result = "{\n"
+	
+	local sortedKeys = {}
+	for k in pairs(t) do
+		table.insert(sortedKeys, k)
+	end
+	
+	table.sort(sortedKeys, function(a, b)
+		return tostring(a) < tostring(b)
+	end)
+	
+	for _, k in ipairs(sortedKeys) do
+		local v = t[k]
+		local key = type(k) == "string" and k or "["..tostring(k).."]"
+		result = result .. indent .. "  " .. key .. " = "
+		if type(v) == "table" then 
+			result = result .. tableToStringFallback(v, depth + 1)
+		elseif type(v) == "string" then 
+			result = result .. '"' .. v .. '"'
+		else 
+			result = result .. tostring(v) 
+		end
+		result = result .. ",\n"
+	end
+	return result .. indent .. "}"
+end
+
 loadBtn.MouseButton1Click:Connect(function()
 	local path = pathBox.Text
 	local module = resolvePath(path)
@@ -158,17 +189,30 @@ loadBtn.MouseButton1Click:Connect(function()
 	if not sourceText or sourceText == "" then
 		local decompileFunc = decompile or extract_script_source or nil
 		if decompileFunc then
-			pcall(function() sourceText = decompileFunc(module) end)
+			local decompSuccess, decompResult = pcall(function() 
+				return decompileFunc(module) 
+			end)
+			if decompSuccess and decompResult and decompResult ~= "" then
+				sourceText = decompResult
+			end
 		end
 	end
 	
-	if sourceText and sourceText ~= "" then
+	if sourceText and sourceText ~= "" and not string.find(sourceText, "decompilation panicked") then
 		editor.Text = sourceText
 		currentModule = module
 		updateScroll()
-		status.Text = "Loaded: " .. module.Name
+		status.Text = "Loaded Raw Source: " .. module.Name
 	else
-		status.Text = "Failed to load script raw source text"
+		local success, data = pcall(require, module)
+		if success and type(data) == "table" then
+			editor.Text = "return " .. tableToStringFallback(data)
+			currentModule = module
+			updateScroll()
+			status.Text = "Loaded Memory Fallback: " .. module.Name
+		else
+			status.Text = "Decompiler panicked and runtime require failed"
+		end
 	end
 end)
 
@@ -193,7 +237,7 @@ saveBtn.MouseButton1Click:Connect(function()
 	if success then
 		status.Text = "Saved raw text successfully!"
 	else
-		status.Text = "Write protection error on current context"
+		status.Text = "Delta write protection error on current context"
 	end
 end)
 
