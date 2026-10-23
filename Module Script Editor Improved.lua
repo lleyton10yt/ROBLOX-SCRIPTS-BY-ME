@@ -135,7 +135,7 @@ local function resolvePath(pathStr)
 	local segments = string.split(pathStr, ".")
 	local current = game
 	local startIdx = 1
-	if segments[1] == "game" then startIdx = 2 end
+	if segments == "game" then startIdx = 2 end
 	
 	for i = startIdx, #segments do
 		local success, found = pcall(function() return current:FindFirstChild(segments[i]) end)
@@ -153,23 +153,22 @@ loadBtn.MouseButton1Click:Connect(function()
 	end
 	
 	local sourceText = nil
-	
-	local decompileFunc = decompile or extract_script_source or nil
-	if decompileFunc then
-		pcall(function() sourceText = decompileFunc(module) end)
-	end
+	pcall(function() sourceText = module.Source end)
 	
 	if not sourceText or sourceText == "" then
-		pcall(function() sourceText = module.Source end)
+		local decompileFunc = decompile or extract_script_source or nil
+		if decompileFunc then
+			pcall(function() sourceText = decompileFunc(module) end)
+		end
 	end
 	
 	if sourceText and sourceText ~= "" then
 		editor.Text = sourceText
 		currentModule = module
 		updateScroll()
-		status.Text = "Loaded Raw Source: " .. module.Name
+		status.Text = "Loaded: " .. module.Name
 	else
-		status.Text = "Failed to fetch source text"
+		status.Text = "Failed to load script raw source text"
 	end
 end)
 
@@ -187,15 +186,14 @@ saveBtn.MouseButton1Click:Connect(function()
 	end
 
 	local textData = editor.Text
-	
 	local success, _ = pcall(function()
 		currentModule.Source = textData
 	end)
 	
 	if success then
-		status.Text = "Saved source file successfully!"
+		status.Text = "Saved raw text successfully!"
 	else
-		status.Text = "Write protection error"
+		status.Text = "Write protection error on current context"
 	end
 end)
 
