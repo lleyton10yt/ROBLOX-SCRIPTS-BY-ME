@@ -144,66 +144,107 @@ local function resolvePath(pathStr)
 	return current
 end
 
-local function getDeltaMemorySequence(module)
-	local orderMap = {}
-	local getgcFunc = getgc or nil
-	if not getgcFunc then return orderMap end
+local function readModuleTextStream(module)
+	local output = ""
+	local savefileFunc = savefile or writefile
+	local readfileFunc = readfile
 	
-	local success, objects = pcall(getgcFunc)
-	if not success or type(objects) ~= "table" then return orderMap end
+	if savefileFunc and readfileFunc then
+		pcall(function()
+			savefileFunc("DeltaModuleCache.txt", "")
+			local cl = module:Clone()
+			cl.Name = "DeltaModuleCache"
+			cl.Parent = game:GetService("Workspace")
+			
+			if decompile then
+				output = decompile(cl)
+			elseif cl.Source and cl.Source ~= "" then
+				output = cl.Source
+			end
+			cl:Destroy()
+		end)
+	end
+	return output
+end
+
+local function parseScriptStructure(scriptText)
+	local globalOrder = {}
+	local scopeStack = { globalOrder }
 	
-	for _, obj in pairs(objects) do
-		if type(obj) == "function" and islclosure(obj) then
-			local info = debug.getinfo(obj)
-			if info and info.source and string.find(info.source, module.Name) then
-				local idx = 1
-				while true do
-					local name, val = debug.getupvalue(obj, idx)
-					if not name then break end
-					if type(val) == "string" and not orderMap[val] then
-						table.insert(orderMap, val)
-						orderMap[val] = #orderMap
-					end
-					idx = idx + 1
-				end
+	if not scriptText or scriptText == "" then return globalOrder end
+	
+	for line in string.gmatch(scriptText, "[^\r\n]+") do
+		local cleaned = string.gsub(line, "%s+", "")
+		
+		for _ in string.gmatch(line, "{") do
+			local newScope = {}
+			table.insert(scopeStack[#scopeStack], newScope)
+			table.insert(scopeStack, newScope)
+		end
+		
+		local key = string.match(line, "^%s*([%w_]+)%s*=") or string.match(line, '^%s*%["([%w_]+)"%]%s*=')
+		if key and key ~= "return" and key ~= "local" then
+			table.insert(scopeStack[#scopeStack], key)
+		end
+		
+		for _ in string.gmatch(line, "}") do
+			if #scopeStack > 1 then
+				table.remove(scopeStack)
 			end
 		end
 	end
-	return orderMap
+	return globalOrder
 end
 
-local function buildTableText(t, sequenceMap, depth)
+local function buildStructuredText(t, structure, depth)
 	depth = depth or 0
 	if type(t) ~= "table" then return tostring(t) end
 	local indent = string.rep("  ", depth)
 	local result = "{\n"
 	
-	local keys = {}
-	for k, _ in pairs(t) do
-		table.insert(keys, k)
-	end
+	local usedKeys = {}
+	local nestedIndex = 1
 	
-	if sequenceMap and next(sequenceMap) ~= nil then
-		table.sort(keys, function(a, b)
-			local rankA = sequenceMap[tostring(a)] or 9999
-			local rankB = sequenceMap[tostring(b)] or 9999
-			return rankA < rankB
-		end)
-	end
-	
-	for _, k in ipairs(keys) do
-		local v = t[k]
-		local key = type(k) == "string" and k or "["..tostring(k).."]"
-		result = result .. indent .. "  " .. key .. " = "
-		if type(v) == "table" then 
-			result = result .. buildTableText(v, sequenceMap, depth + 1)
-		elseif type(v) == "string" then 
-			result = result .. '"' .. v .. '"'
-		else 
-			result = result .. tostring(v) 
+	if structure then
+		for _, node in ipairs(structure) do
+			if type(node) == "string" then
+				local rawKey = tonumber(node) or node
+				local v = t[rawKey]
+				if v ~= nil and not usedKeys[rawKey] then
+					usedKeys[rawKey] = true
+					local key = type(rawKey) == "string" and rawKey or "["..tostring(rawKey).."]"
+					result = result .. indent .. "  " .. key .. " = "
+					if type(v) == "table" then
+						local subStructure = structure[nestedIndex + 1]
+						result = result .. buildStructuredText(v, type(subStructure) == "table" and subStructure or nil, depth + 1)
+					elseif type(v) == "string" then
+						result = result .. '"' .. v .. '"'
+					else
+						result = result .. tostring(v)
+					end
+					result = result .. ",\n"
+				end
+			elseif type(node) == "table" then
+				nestedIndex = nestedIndex + 1
+			end
 		end
-		result = result .. ",\n"
 	end
+	
+	for k, v in pairs(t) do
+		if not usedKeys[k] then
+			local key = type(k) == "string" and k or "["..tostring(k).."]"
+			result = result .. indent .. "  " .. key .. " = "
+			if type(v) == "table" then
+				result = result .. buildStructuredText(v, nil, depth + 1)
+			elseif type(v) == "string" then
+				result = result .. '"' .. v .. '"'
+			else
+				result = result .. tostring(v)
+			end
+			result = result .. ",\n"
+		end
+	end
+	
 	return result .. indent .. "}"
 end
 
@@ -215,16 +256,17 @@ loadBtn.MouseButton1Click:Connect(function()
 		return
 	end
 	
-	local sequenceMap = getDeltaMemorySequence(module)
+	local rawText = readModuleTextStream(module)
+	local structure = parseScriptStructure(rawText)
 	local success, data = pcall(require, module)
 	
 	if success and type(data) == "table" then
-		editor.Text = "return " .. buildTableText(data, sequenceMap)
+		editor.Text = "return " .. buildStructuredText(data, structure)
 		currentModule = module
 		updateScroll()
-		status.Text = "Loaded Structure: " .. module.Name
+		status.Text = "Loaded: " .. module.Name
 	else
-		status.Text = "Module doesn't return a table"
+		status.Text = "Module load error"
 	end
 end)
 
@@ -296,38 +338,34 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		dragging = false
-	end
+if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+dragging = false
+end
 end)
-
 local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
 local typingPosition = UDim2.new(0.5, 0, 0.5, 45)
-
 UserInputService.TextBoxFocused:Connect(function(textBox)
-	if textBox == editor or textBox == pathBox then
-		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-			main.Position = typingPosition
-		end
-	end
+if textBox == editor or textBox == pathBox then
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+main.Position = typingPosition
+end
+end
 end)
-
 UserInputService.TextBoxFocusReleased:Connect(function(textBox)
-	if textBox == editor or textBox == pathBox then
-		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
-			main.Position = normalPosition
-		end
-	end
+if textBox == editor or textBox == pathBox then
+if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
+main.Position = normalPosition
+end
+end
 end)
-
 local function checkEnvironment()
-	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
-	if string.find(string.lower(execName), "xeno") then
-		status.TextColor3 = Color3.fromRGB(255, 100, 100)
-		status.Font = Enum.Font.GothamBold
-		status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
-	else
-		status.Text = "Ready (" .. execName .. " checked)"
-	end
+local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
+if string.find(string.lower(execName), "xeno") then
+status.TextColor3 = Color3.fromRGB(255, 100, 100)
+status.Font = Enum.Font.GothamBold
+status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+else
+status.Text = "Ready (" .. execName .. " checked)"
+end
 end
 checkEnvironment()
