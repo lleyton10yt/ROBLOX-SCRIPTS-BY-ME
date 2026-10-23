@@ -57,7 +57,7 @@ pathBox.TextColor3 = Color3.new(1, 1, 1)
 pathBox.Font = Enum.Font.Code
 pathBox.TextSize = 12
 pathBox.Text = ""
-pathBox.PlaceholderText = "Enter path here (e.g. game.ReplicatedStorage.ModuleScript)"
+pathBox.PlaceholderText = "Enter path here (e.g. replicatedstorage.modulescript)"
 pathBox.ClearTextOnFocus = false
 pathBox.Parent = main
 
@@ -161,14 +161,36 @@ local function toggleVisibility()
 end
 
 local function resolvePath(pathStr)
-	local segments = string.split(pathStr, ".")
+	local cleanPath = string.gsub(pathStr, "^%s+", "")
+	cleanPath = string.gsub(cleanPath, "%s+$", "")
+	
+	if not string.find(string.lower(cleanPath), "^game") then
+		cleanPath = "game." .. cleanPath
+	end
+	
+	local segments = string.split(cleanPath, ".")
 	local current = game
-	local startIdx = 1
-	if segments == "game" then startIdx = 2 end
+	local startIdx = 2
 	
 	for i = startIdx, #segments do
-		local success, found = pcall(function() return current:FindFirstChild(segments[i]) end)
-		if success and found then current = found else return nil end
+		local targetName = string.lower(segments[i])
+		local foundChild = nil
+		
+		local childrenSuccess, children = pcall(function() return current:GetChildren() end)
+		if childrenSuccess and children then
+			for _, child in ipairs(children) do
+				if string.lower(child.Name) == targetName then
+					foundChild = child
+					break
+				end
+			end
+		end
+		
+		if foundChild then
+			current = foundChild
+		else
+			return nil
+		end
 	end
 	return current
 end
@@ -243,9 +265,9 @@ loadBtn.MouseButton1Click:Connect(function()
 			local output = "return " .. tableToStringFallback(data)
 			currentModule = module
 			syncActiveEditorView(output)
-			status.Text = "Loaded: " .. module.Name
+			status.Text = "Loaded Memory Fallback: " .. module.Name
 		else
-			status.Text = "Decompiler panicked"
+			status.Text = "Decompiler panicked and runtime require failed"
 		end
 	end
 end)
@@ -313,15 +335,14 @@ header.InputBegan:Connect(function(input)
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-		local delta = input.Position - dragStart
-		main.Position = UDim2.new(
-			startPos.X.Scale, startPos.X.Offset + delta.X, 
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y
-		)
-	end
+if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+local delta = input.Position - dragStart
+main.Position = UDim2.new(
+startPos.X.Scale, startPos.X.Offset + delta.X,
+startPos.Y.Scale, startPos.Y.Offset + delta.Y
+)
+end
 end)
-
 UserInputService.InputEnded:Connect(function(input)
 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 dragging = false
