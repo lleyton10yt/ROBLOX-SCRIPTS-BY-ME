@@ -8,8 +8,8 @@ gui.ClipToDeviceSafeArea = false
 gui.Parent = CoreGui
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0.55, 0, 0.6, 0)
-main.Position = UDim2.new(0.5, 0, 0.5, 0)
+main.Size = UDim2.new(0.55, 0, 0.45, 0)
+main.Position = UDim2.new(0.5, 0, 0.22, 0)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 main.BorderSizePixel = 0
@@ -17,8 +17,8 @@ main.Active = true
 main.Parent = gui
 
 local sizeConstraint = Instance.new("UISizeConstraint")
-sizeConstraint.MinSize = Vector2.new(450, 300) 
-sizeConstraint.MaxSize = Vector2.new(850, 550) 
+sizeConstraint.MinSize = Vector2.new(450, 200) 
+sizeConstraint.MaxSize = Vector2.new(850, 400) 
 sizeConstraint.Parent = main
 
 local header = Instance.new("Frame")
@@ -264,10 +264,8 @@ UserInputService.InputChanged:Connect(function(input)
 	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 		local delta = input.Position - dragStart
 		main.Position = UDim2.new(
-			startPos.X.Scale, 
-			startPos.X.Offset + delta.X, 
-			startPos.Y.Scale, 
-			startPos.Y.Offset + delta.Y
+			startPos.X.Scale, startPos.X.Offset + delta.X, 
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y
 		)
 	end
 end)
@@ -275,26 +273,6 @@ end)
 UserInputService.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = false
-	end
-end)
-
-local lockPosition = UDim2.new(0.5, 0, 0.5, 0)
-local function keepInBounds()
-	if main.Position ~= lockPosition then
-		main.Position = lockPosition
-	end
-end
-
-UserInputService.TextBoxFocused:Connect(function(textBox)
-	if textBox == editor then
-		main.Position = lockPosition
-		main:GetPropertyChangedSignal("Position"):Connect(keepInBounds)
-	end
-end)
-
-UserInputService.TextBoxFocusReleased:Connect(function(textBox)
-	if textBox == editor then
-		main.Position = lockPosition
 	end
 end)
 
