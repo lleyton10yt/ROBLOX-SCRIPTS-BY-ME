@@ -113,7 +113,7 @@ proxyTrigger.Text = ""
 proxyTrigger.Parent = scroll
 
 local proxyBox = Instance.new("TextBox")
-proxyBox.Size = UDim2.new(1, 0, 1, 0)
+proxyBox.Size = UDim2.new(1, 0, 0.4, 0)
 proxyBox.Position = UDim2.new(0, 0, 0, 0)
 proxyBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 proxyBox.TextColor3 = Color3.new(1, 1, 1)
@@ -124,7 +124,7 @@ proxyBox.MultiLine = true
 proxyBox.TextXAlignment = Enum.TextXAlignment.Left
 proxyBox.TextYAlignment = Enum.TextYAlignment.Top
 proxyBox.Visible = false
-proxyBox.Parent = scroll
+proxyBox.Parent = main
 
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -20, 0, 15)
@@ -141,8 +141,7 @@ local isVisible = true
 
 local function updateScroll()
 	local lines = #string.split(editorCanvas.Text, "\n")
-	scroll.CanvasSize = UDim2.new(0, 1000, 0, (lines * 18) + 120)
-	proxyBox.Size = UDim2.new(1, 0, 0, lines * 18)
+	scroll.CanvasSize = UDim2.new(0, 1000, 0, lines * 18)
 end
 
 local function toggleVisibility()
@@ -272,12 +271,7 @@ proxyTrigger.MouseButton1Click:Connect(function()
 	saveBtn.Visible = false
 	exit.Visible = false
 	status.Visible = false
-	
-	main.BackgroundTransparency = 1
-	scroll.Position = UDim2.new(0, 0, 0, 0)
-	scroll.Size = UDim2.new(1, 0, 1, 0)
-	
-	editorCanvas.Visible = false
+	scroll.Visible = false
 	proxyTrigger.Visible = false
 	
 	proxyBox.Visible = true
@@ -287,12 +281,6 @@ end)
 proxyBox.FocusLost:Connect(function()
 	editorCanvas.Text = proxyBox.Text
 	proxyBox.Visible = false
-	editorCanvas.Visible = true
-	proxyTrigger.Visible = true
-	
-	scroll.Position = UDim2.new(0, 10, 0, 75)
-	scroll.Size = UDim2.new(1, -20, 1, -100)
-	main.BackgroundTransparency = 0
 	
 	header.Visible = true
 	pathBox.Visible = true
@@ -300,6 +288,8 @@ proxyBox.FocusLost:Connect(function()
 	saveBtn.Visible = true
 	exit.Visible = true
 	status.Visible = true
+	scroll.Visible = true
+	proxyTrigger.Visible = true
 	updateScroll()
 end)
 
@@ -333,9 +323,9 @@ local function checkEnvironment()
 	if string.find(string.lower(execName), "xeno") then
 		status.TextColor3 = Color3.fromRGB(255, 100, 100)
 		status.Font = Enum.Font.GothamBold
-status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
-else
-status.Text = "Ready (" .. execName .. " checked)"
-end
+		status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+	else
+		status.Text = "Ready (" .. execName .. " checked)"
+	end
 end
 checkEnvironment()
