@@ -236,7 +236,7 @@ local normalPosition = UDim2.new(0.5, 0, 0.5, 0)
 local typingPosition = UDim2.new(0.5, 0, 0.5, 45)
 
 UserInputService.TextBoxFocused:Connect(function(textBox)
-	if textBox == editor or textBox == pathBox then
+	if textBox == pathBox then
 		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 			main.Position = typingPosition
 		end
@@ -244,7 +244,7 @@ UserInputService.TextBoxFocused:Connect(function(textBox)
 end)
 
 UserInputService.TextBoxFocusReleased:Connect(function(textBox)
-	if textBox == editor or textBox == pathBox then
+	if textBox == pathBox then
 		if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 			main.Position = normalPosition
 		end
