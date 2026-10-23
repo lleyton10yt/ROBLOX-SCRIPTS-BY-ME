@@ -243,9 +243,9 @@ loadBtn.MouseButton1Click:Connect(function()
 			local output = "return " .. tableToStringFallback(data)
 			currentModule = module
 			syncActiveEditorView(output)
-			status.Text = "Loaded Memory Fallback: " .. module.Name
+			status.Text = "Loaded: " .. module.Name
 		else
-			status.Text = "Decompiler panicked and runtime require failed"
+			status.Text = "Decompiler panicked"
 		end
 	end
 end)
