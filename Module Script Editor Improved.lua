@@ -276,20 +276,21 @@ saveBtn.MouseButton1Click:Connect(function()
 end)
 
 proxyTrigger.MouseButton1Click:Connect(function()
-	local mousePos = UserInputService:GetMouseLocation()
-	local relativeY = mousePos.Y - scroll.AbsolutePosition.Y + scroll.CanvasPosition.Y
-	local lineIndex = math.clamp(math.floor(relativeY / 18) + 1, 1, #string.split(proxyBox.Text, "\n"))
+	local mouseLocation = UserInputService:GetMouseLocation()
+	local interfaceY = mouseLocation.Y - scroll.AbsolutePosition.Y + scroll.CanvasPosition.Y
+	local targetLineIndex = math.clamp(math.floor(interfaceY / 18) + 1, 1, #string.split(proxyBox.Text, "\n"))
 	
 	main.Visible = false
 	fullScreenContainer.Visible = true
 	proxyBox:CaptureFocus()
 	
 	local textLines = string.split(proxyBox.Text, "\n")
-	local cursorTargetPosition = 0
-	for i = 1, lineIndex - 1 do
-		cursorTargetPosition = cursorTargetPosition + string.len(textLines[i]) + 1
+	local calculatedCursorSlot = 0
+	for i = 1, targetLineIndex - 1 do
+		calculatedCursorSlot = calculatedCursorSlot + string.len(textLines[i]) + 1
 	end
-	proxyBox.CursorPosition = cursorTargetPosition + 1
+	
+	proxyBox.CursorPosition = calculatedCursorSlot + 1
 end)
 
 proxyBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -300,12 +301,6 @@ end)
 proxyBox.FocusLost:Connect(function()
 	fullScreenContainer.Visible = false
 	main.Visible = true
-end)
-
-UserInputService.InputBegan:Connect(function(input, processed)
-	if not processed and input.KeyCode == Enum.KeyCode.Home then
-		toggleVisibility()
-	end
 end)
 
 local dragging, dragStart, startPos
@@ -322,10 +317,11 @@ UserInputService.InputChanged:Connect(function(input)
 		local delta = input.Position - dragStart
 		main.Position = UDim2.new(
 			startPos.X.Scale, startPos.X.Offset + delta.X, 
-startPos.Y.Scale, startPos.Y.Offset + delta.Y
-)
-end
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y
+		)
+	end
 end)
+
 UserInputService.InputEnded:Connect(function(input)
 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 dragging = false
