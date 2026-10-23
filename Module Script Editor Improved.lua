@@ -278,11 +278,12 @@ saveBtn.MouseButton1Click:Connect(function()
 		return
 	end
 	
-	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
-	if string.find(string.lower(execName), "xeno") then
-		status.TextColor3 = Color3.fromRGB(255, 75, 75)
-		status.Text = "BLOCKED: Saving on Xeno crashes your game client!"
-		return
+	local isXenoLocked = false
+	if Xeno and type(Xeno) == "table" and Xeno.UnlockModule then
+		pcall(function()
+			Xeno.UnlockModule(currentModule)
+			isXenoLocked = true
+		end)
 	end
 
 	local textData = proxyBox.Text
@@ -290,10 +291,16 @@ saveBtn.MouseButton1Click:Connect(function()
 		currentModule.Source = textData
 	end)
 	
+	if isXenoLocked and Xeno and Xeno.LockModule then
+		pcall(function()
+			Xeno.LockModule(currentModule)
+		end)
+	end
+	
 	if success then
 		status.Text = "Saved raw text successfully!"
 	else
-		status.Text = "Delta write protection error on current context"
+		status.Text = "Write protection error on current context"
 	end
 end)
 
@@ -333,7 +340,6 @@ header.InputBegan:Connect(function(input)
 		startPos = main.Position
 	end
 end)
-
 UserInputService.InputChanged:Connect(function(input)
 if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 local delta = input.Position - dragStart
@@ -350,10 +356,10 @@ end
 end)
 local function checkEnvironment()
 local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
-if string.find(string.lower(execName), "xeno") then
-status.TextColor3 = Color3.fromRGB(255, 100, 100)
+if string.find(string.lower(execName), "xeno") or (Xeno and type(Xeno) == "table") then
+status.TextColor3 = Color3.fromRGB(100, 255, 100)
 status.Font = Enum.Font.GothamBold
-status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+status.Text = "Xeno Detected: Auto-Unlock on to see if it works idk"
 else
 status.Text = "Ready (" .. execName .. " checked)"
 end
