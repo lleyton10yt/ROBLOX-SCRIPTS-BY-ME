@@ -7,8 +7,8 @@ gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0.9, 0, 0.85, 0)
-main.Position = UDim2.new(0.5, 0, 0.5, 0)
+main.Size = UDim2.new(0.9, 0, 0.7, 0)
+main.Position = UDim2.new(0.5, 0, 0.45, 0)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 main.BorderSizePixel = 0
@@ -16,8 +16,8 @@ main.Active = true
 main.Parent = gui
 
 local sizeConstraint = Instance.new("UISizeConstraint")
-sizeConstraint.MinSize = Vector2.new(500, 350) 
-sizeConstraint.MaxSize = Vector2.new(1200, 850) 
+sizeConstraint.MinSize = Vector2.new(500, 300) 
+sizeConstraint.MaxSize = Vector2.new(1200, 600) 
 sizeConstraint.Parent = main
 
 local header = Instance.new("Frame")
@@ -113,7 +113,7 @@ proxyTrigger.Text = ""
 proxyTrigger.Parent = scroll
 
 local proxyBox = Instance.new("TextBox")
-proxyBox.Size = UDim2.new(1, 0, 1, 0)
+proxyBox.Size = UDim2.new(1, 0, 1, -20)
 proxyBox.Position = UDim2.new(0, 0, 0, 0)
 proxyBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 proxyBox.TextColor3 = Color3.new(1, 1, 1)
@@ -302,12 +302,6 @@ proxyBox.FocusLost:Connect(function()
 	updateScroll()
 end)
 
-UserInputService.InputBegan:Connect(function(input, processed)
-	if not processed and input.KeyCode == Enum.KeyCode.Home then
-		toggleVisibility()
-	end
-end)
-
 local dragging, dragStart, startPos
 header.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -336,10 +330,10 @@ end)
 local function checkEnvironment()
 	local execName = (identifyexecutor or getexecutorname or function() return "Unknown" end)()
 	if string.find(string.lower(execName), "xeno") then
-status.TextColor3 = Color3.fromRGB(255, 100, 100)
-status.Font = Enum.Font.GothamBold
-status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
-else
+		status.TextColor3 = Color3.fromRGB(255, 100, 100)
+		status.Font = Enum.Font.GothamBold
+		status.Text = "⚠️ WARNING: Xeno detected. Saving crashes client!"
+	else
 status.Text = "Ready (" .. execName .. " checked)"
 end
 end
