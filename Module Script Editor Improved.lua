@@ -113,16 +113,18 @@ proxyTrigger.Text = ""
 proxyTrigger.Parent = scroll
 
 local proxyBox = Instance.new("TextBox")
-proxyBox.Size = UDim2.new(1, -20, 0.5, 0)
-proxyBox.Position = UDim2.new(0, 10, 0, 10)
-proxyBox.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+proxyBox.Size = UDim2.new(1, 0, 0.45, 0)
+proxyBox.Position = UDim2.new(0, 0, 0, 0)
+proxyBox.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 proxyBox.TextColor3 = Color3.new(1, 1, 1)
 proxyBox.Font = Enum.Font.Code
 proxyBox.TextSize = 14
 proxyBox.ClearTextOnFocus = false
 proxyBox.MultiLine = true
+proxyBox.TextXAlignment = Enum.TextXAlignment.Left
+proxyBox.TextYAlignment = Enum.TextYAlignment.Top
 proxyBox.Visible = false
-proxyBox.Parent = main
+proxyBox.Parent = gui
 
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -20, 0, 15)
@@ -261,8 +263,8 @@ saveBtn.MouseButton1Click:Connect(function()
 end)
 
 proxyTrigger.MouseButton1Click:Connect(function()
+	main.Visible = false
 	proxyBox.Visible = true
-	proxyBox.Position = UDim2.new(0, 10, 0, -180)
 	proxyBox:CaptureFocus()
 end)
 
@@ -273,6 +275,7 @@ end)
 
 proxyBox.FocusLost:Connect(function()
 	proxyBox.Visible = false
+	main.Visible = true
 end)
 
 UserInputService.InputBegan:Connect(function(input, processed)
