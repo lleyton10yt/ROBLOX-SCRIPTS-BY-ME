@@ -7,8 +7,8 @@ gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0.9, 0, 0.7, 0)
-main.Position = UDim2.new(0.5, 0, 0.45, 0)
+main.Size = UDim2.new(0.65, 0, 0.45, 0)
+main.Position = UDim2.new(0.5, 0, 0.25, 0)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 main.BorderSizePixel = 0
@@ -16,8 +16,8 @@ main.Active = true
 main.Parent = gui
 
 local sizeConstraint = Instance.new("UISizeConstraint")
-sizeConstraint.MinSize = Vector2.new(500, 300) 
-sizeConstraint.MaxSize = Vector2.new(1200, 600) 
+sizeConstraint.MinSize = Vector2.new(450, 200) 
+sizeConstraint.MaxSize = Vector2.new(850, 450) 
 sizeConstraint.Parent = main
 
 local header = Instance.new("Frame")
@@ -113,16 +113,14 @@ proxyTrigger.Text = ""
 proxyTrigger.Parent = scroll
 
 local proxyBox = Instance.new("TextBox")
-proxyBox.Size = UDim2.new(1, 0, 0.4, 0)
-proxyBox.Position = UDim2.new(0, 0, 0, 0)
-proxyBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+proxyBox.Size = UDim2.new(1, -20, 0.5, 0)
+proxyBox.Position = UDim2.new(0, 10, 0, 10)
+proxyBox.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 proxyBox.TextColor3 = Color3.new(1, 1, 1)
 proxyBox.Font = Enum.Font.Code
 proxyBox.TextSize = 14
 proxyBox.ClearTextOnFocus = false
 proxyBox.MultiLine = true
-proxyBox.TextXAlignment = Enum.TextXAlignment.Left
-proxyBox.TextYAlignment = Enum.TextYAlignment.Top
 proxyBox.Visible = false
 proxyBox.Parent = main
 
@@ -193,12 +191,6 @@ local function tableToStringFallback(t, depth)
 	return result .. indent .. "}"
 end
 
-local function syncActiveEditorView(text)
-	editorCanvas.Text = text
-	proxyBox.Text = text
-	updateScroll()
-end
-
 loadBtn.MouseButton1Click:Connect(function()
 	local path = pathBox.Text
 	local module = resolvePath(path)
@@ -223,15 +215,19 @@ loadBtn.MouseButton1Click:Connect(function()
 	end
 	
 	if sourceText and sourceText ~= "" and not string.find(sourceText, "decompilation panicked") then
+		editorCanvas.Text = sourceText
+		proxyBox.Text = sourceText
 		currentModule = module
-		syncActiveEditorView(sourceText)
+		updateScroll()
 		status.Text = "Loaded Raw Source: " .. module.Name
 	else
 		local success, data = pcall(require, module)
 		if success and type(data) == "table" then
 			local output = "return " .. tableToStringFallback(data)
+			editorCanvas.Text = output
+			proxyBox.Text = output
 			currentModule = module
-			syncActiveEditorView(output)
+			updateScroll()
 			status.Text = "Loaded Memory Fallback: " .. module.Name
 		else
 			status.Text = "Decompiler panicked and runtime require failed"
@@ -265,32 +261,24 @@ saveBtn.MouseButton1Click:Connect(function()
 end)
 
 proxyTrigger.MouseButton1Click:Connect(function()
-	header.Visible = false
-	pathBox.Visible = false
-	loadBtn.Visible = false
-	saveBtn.Visible = false
-	exit.Visible = false
-	status.Visible = false
-	scroll.Visible = false
-	proxyTrigger.Visible = false
-	
 	proxyBox.Visible = true
+	proxyBox.Position = UDim2.new(0, 10, 0, -180)
 	proxyBox:CaptureFocus()
 end)
 
-proxyBox.FocusLost:Connect(function()
+proxyBox:GetPropertyChangedSignal("Text"):Connect(function()
 	editorCanvas.Text = proxyBox.Text
-	proxyBox.Visible = false
-	
-	header.Visible = true
-	pathBox.Visible = true
-	loadBtn.Visible = true
-	saveBtn.Visible = true
-	exit.Visible = true
-	status.Visible = true
-	scroll.Visible = true
-	proxyTrigger.Visible = true
 	updateScroll()
+end)
+
+proxyBox.FocusLost:Connect(function()
+	proxyBox.Visible = false
+end)
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if not processed and input.KeyCode == Enum.KeyCode.Home then
+		toggleVisibility()
+	end
 end)
 
 local dragging, dragStart, startPos
