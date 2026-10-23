@@ -7,8 +7,8 @@ gui.ResetOnSpawn = false
 gui.Parent = CoreGui
 
 local main = Instance.new("Frame")
-main.Size = UDim2.new(0.65, 0, 0.45, 0)
-main.Position = UDim2.new(0.5, 0, 0.25, 0)
+main.Size = UDim2.new(0.8, 0, 0.75, 0)
+main.Position = UDim2.new(0.5, 0, 0.45, 0)
 main.AnchorPoint = Vector2.new(0.5, 0.5)
 main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 main.BorderSizePixel = 0
@@ -16,8 +16,8 @@ main.Active = true
 main.Parent = gui
 
 local sizeConstraint = Instance.new("UISizeConstraint")
-sizeConstraint.MinSize = Vector2.new(450, 200) 
-sizeConstraint.MaxSize = Vector2.new(850, 450) 
+sizeConstraint.MinSize = Vector2.new(450, 300) 
+sizeConstraint.MaxSize = Vector2.new(1000, 700) 
 sizeConstraint.Parent = main
 
 local header = Instance.new("Frame")
@@ -56,7 +56,8 @@ pathBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 pathBox.TextColor3 = Color3.new(1, 1, 1)
 pathBox.Font = Enum.Font.Code
 pathBox.TextSize = 12
-pathBox.Text = "Workspace.ModuleScript"
+pathBox.Text = ""
+pathBox.PlaceholderText = "Enter path here (e.g. game.ReplicatedStorage.ModuleScript)"
 pathBox.ClearTextOnFocus = false
 pathBox.Parent = main
 
@@ -112,16 +113,18 @@ proxyTrigger.Text = ""
 proxyTrigger.Parent = scroll
 
 local proxyBox = Instance.new("TextBox")
-proxyBox.Size = UDim2.new(1, -20, 0, 30)
-proxyBox.Position = UDim2.new(0, 10, 0, -100)
-proxyBox.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+proxyBox.Size = UDim2.new(1, 0, 1, 0)
+proxyBox.Position = UDim2.new(0, 0, 0, 0)
+proxyBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 proxyBox.TextColor3 = Color3.new(1, 1, 1)
 proxyBox.Font = Enum.Font.Code
-proxyBox.TextSize = 14
+proxyBox.TextSize = 13
 proxyBox.ClearTextOnFocus = false
 proxyBox.MultiLine = true
+proxyBox.TextXAlignment = Enum.TextXAlignment.Left
+proxyBox.TextYAlignment = Enum.TextYAlignment.Top
 proxyBox.Visible = false
-proxyBox.Parent = main
+proxyBox.Parent = scroll
 
 local status = Instance.new("TextLabel")
 status.Size = UDim2.new(1, -20, 0, 15)
@@ -150,7 +153,7 @@ local function resolvePath(pathStr)
 	local segments = string.split(pathStr, ".")
 	local current = game
 	local startIdx = 1
-	if segments == "game" then startIdx = 2 end
+	if segments[1] == "game" then startIdx = 2 end
 	
 	for i = startIdx, #segments do
 		local success, found = pcall(function() return current:FindFirstChild(segments[i]) end)
@@ -190,6 +193,12 @@ local function tableToStringFallback(t, depth)
 	return result .. indent .. "}"
 end
 
+local function syncActiveEditorView(text)
+	editorCanvas.Text = text
+	proxyBox.Text = text
+	updateScroll()
+end
+
 loadBtn.MouseButton1Click:Connect(function()
 	local path = pathBox.Text
 	local module = resolvePath(path)
@@ -214,19 +223,15 @@ loadBtn.MouseButton1Click:Connect(function()
 	end
 	
 	if sourceText and sourceText ~= "" and not string.find(sourceText, "decompilation panicked") then
-		editorCanvas.Text = sourceText
-		proxyBox.Text = sourceText
 		currentModule = module
-		updateScroll()
+		syncActiveEditorView(sourceText)
 		status.Text = "Loaded Raw Source: " .. module.Name
 	else
 		local success, data = pcall(require, module)
 		if success and type(data) == "table" then
 			local output = "return " .. tableToStringFallback(data)
-			editorCanvas.Text = output
-			proxyBox.Text = output
 			currentModule = module
-			updateScroll()
+			syncActiveEditorView(output)
 			status.Text = "Loaded Memory Fallback: " .. module.Name
 		else
 			status.Text = "Decompiler panicked and runtime require failed"
@@ -260,18 +265,18 @@ saveBtn.MouseButton1Click:Connect(function()
 end)
 
 proxyTrigger.MouseButton1Click:Connect(function()
+	editorCanvas.Visible = false
+	proxyTrigger.Visible = false
 	proxyBox.Visible = true
-	proxyBox.Position = UDim2.new(0, 10, 0, -45)
 	proxyBox:CaptureFocus()
 end)
 
-proxyBox:GetPropertyChangedSignal("Text"):Connect(function()
-	editorCanvas.Text = proxyBox.Text
-	updateScroll()
-end)
-
 proxyBox.FocusLost:Connect(function()
+	editorCanvas.Text = proxyBox.Text
 	proxyBox.Visible = false
+	editorCanvas.Visible = true
+	proxyTrigger.Visible = true
+	updateScroll()
 end)
 
 UserInputService.InputBegan:Connect(function(input, processed)
