@@ -1234,10 +1234,10 @@ visualNoteLabel2.Name = "EXECUTORWARNING"
 visualNoteLabel2.Size = UDim2.new(1, -40, 0, isMobile and 45 or 55)
 visualNoteLabel2.LayoutOrder = 1
 visualNoteLabel2.BackgroundTransparency = 1
-visualNoteLabel2.Text = "THESE FUNCTIONS ONLY WORK ON DELTA ANY OTHER EXECUTOR WILL BREAK THE GAME!"
+visualNoteLabel2.Text = "THESE ONLY WORK ON DELTA ANY OTHER EXECUTOR CRASHES THE GAME"
 visualNoteLabel2.TextColor3 = Color3.fromRGB(255, 0, 0)
 visualNoteLabel2.TextSize = isMobile and 11 or 13
-
+visualNoteLabel2.Font = Enum.Font.SourceSansBold
 visualNoteLabel2.TextWrapped = true
 visualNoteLabel2.BorderSizePixel = 0
 visualNoteLabel2.Parent = visualScroll
@@ -1251,7 +1251,7 @@ visualNoteLabel.BackgroundTransparency = 1
 visualNoteLabel.Text = "Insta-shield overrides flying and gliding animations to prevent this some characters wont have insta-shield."
 visualNoteLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 visualNoteLabel.TextSize = isMobile and 11 or 13
-
+visualNoteLabel.Font = Enum.Font.SourceSansBold
 visualNoteLabel.TextWrapped = true
 visualNoteLabel.BorderSizePixel = 0
 visualNoteLabel.Parent = visualScroll
