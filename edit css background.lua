@@ -21,7 +21,7 @@ BackgroundImage.ImageColor3 = Color3.fromRGB(35, 152, 255)
                 ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 0))
             })
             local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
-            local imageID = "rbxassetid://4508545299"
+            local imageID = "rbxassetid://77759172272380"
             imageLabel.Position = UDim2.new(0.502, 48, 0.5, 0)
             imageLabel.Size = UDim2.new(0, 128, 0, 128)
             if imageLabel.Image == imageID then
