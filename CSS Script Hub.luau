@@ -172,10 +172,10 @@ local function CreateButton(text, callback)
     return ButtonFrame
 end
 
-CreateButton("Load CSS Unlocker Updated", function()
+CreateButton("Load CSS Unlocker Edited By Me Dev Build", function()
     task.spawn(function()
         local success, err = pcall(function()
-            local url = loadstring(game:HttpGet("https://pastebin.com/raw/x4rJcJKv"))()
+            local url = loadstring(game:HttpGet("https://raw.githubusercontent.com/lleyton10yt/ROBLOX-SCRIPTS-BY-ME/refs/heads/main/CSS%20Unlocker%20Updated%20dev%20build.lua"))()
             loadstring(game:HttpGet(url))()
         end)
         if not success then
@@ -183,7 +183,6 @@ CreateButton("Load CSS Unlocker Updated", function()
         end
     end)
     
-    ScreenGui:Destroy()
 end)
 
 CreateButton("Load Juwl 1.1", function()
@@ -197,5 +196,17 @@ CreateButton("Load Juwl 1.1", function()
         end
     end)
     
-    ScreenGui:Destroy()
+end)
+
+CreateButton("Load CSS Unlocker Edited By Me Public Build", function()
+    task.spawn(function()
+        local success, err = pcall(function()
+            local url = loadstring(game:HttpGet("https://raw.githubusercontent.com/lleyton10yt/ROBLOX-SCRIPTS-BY-ME/refs/heads/main/css%20unlocker%20public.luau"))()
+            loadstring(game:HttpGet(url))()
+        end)
+        if not success then
+            warn("Failed to load script: " .. tostring(err))
+        end
+    end)
+    
 end)
