@@ -5,6 +5,7 @@ local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer or Players:GetService("Players").LocalPlayer
 local playerGui = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui", 1)
+local coregui = game.CoreGui
 
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
@@ -1426,4 +1427,4 @@ end
 
 task.spawn(function() pcall(function() spawnStrictBlackBarFix(ReplicatedStorage:FindFirstChild("AnimationGui")) end) end)
 task.spawn(function() pcall(function() spawnStrictBlackBarFix(playerGui:FindFirstChild("AnimationGui")) end) end)
-pcall(function() screenGui.Parent = playerGui end)
+pcall(function() screenGui.Parent = coregui end)
