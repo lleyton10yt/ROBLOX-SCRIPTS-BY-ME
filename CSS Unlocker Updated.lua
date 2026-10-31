@@ -1,12 +1,22 @@
 local PlrGui = game:GetService("Players").LocalPlayer.PlayerGui
 
-local SlotId = 1
+local SlotID = 1
 
 local LevelCreateID = 1
 
 local antiError = 1
 
 local ValuePlayerID = nil
+
+local currentBackground = nil
+
+local BackgroundImage = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+
+local Ug = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.UIGradient
+
+local El1 = workspace.Misc.CSS.Part.Beam
+
+local El2 = workspace.Misc.CSS:GetChildren()[4].Beam
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -21,7 +31,7 @@ local BeatLevelInst = {
 	}
 }
 
-local Library, SaveManager, InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kirill31312/Fluent-Plus-CSS-Script-Edition/refs/heads/main/Fluent-Plus-Fixed"))()
+local Library, SaveManager, InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/lleyton10yt/ROBLOX-SCRIPTS-BY-ME/refs/heads/main/Fluent%20Plus%20Updated.lua"))()
 
 local Vars = {
 	SelectedZone = nil,
@@ -33,19 +43,19 @@ local Vars = {
 }
 
 local Characters = {
-	"Sonic_S1","Sonic_S2","Sonic_S3","Tails_S3","Knuckles_S3","Amy","Metal_Sonic","Dr_Robotnik","Super_Sonic","Shadow_S3","Rouge_S1","Sonic_SCD", "Sonic_EXE"
+	"Sonic_S1","Sonic_S2","Sonic_S3","Tails_S3","Knuckles_S3","Amy","Metal_Sonic","Dr_Robotnik","Super_Sonic","Shadow_S3","Rouge_S1","Sonic_SCD"
 }
 
 local Window = Library:CreateWindow{
 	Title = "Classic Sonic Simulator UnLocker",
-	SubTitle = "By EnGenie, Edited By Maximiser",
+	SubTitle = "By EnGenie",
 	TabWidth = 160,
 	Size = UDim2.fromOffset(620, 520),
 	Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
 	Theme = "Arctic",
-	MinimizeKey = Enum.KeyCode.RightAlt, -- Used when theres no MinimizeKeybind
-    Icon = "circle",
-    Image = "rbxassetid://124751007507311",
+	MinimizeKey = Enum.KeyCode.RightControl, -- Used when theres no MinimizeKeybind
+    Icon = "cpu",
+--  Image = "rbxassetid://120605334883359", -- "" .. tostring(UIImg),
     BackgroundImage = "rbxassetid://85631097968904",
     BackgroundImageTransparency = 1,
     UserInfo = true,
@@ -67,22 +77,22 @@ local Tabs = {
 		Icon = "plus" 
 	},
 	Subject = Window:AddTab{ 
-		Title = "Subject Into", 
+		Title = "Into Subject", 
 		Icon = "paintbrush" 
 	},
 	Functions = Window:AddTab{ 
-		Title = "Sounds", 
+		Title = "Sounds+", 
 		Icon = "music-2" 
 	},
 	LevelCreator = Window:AddTab{ 
 		Title = "Level Creator", 
 		Icon = "package-plus" 
 	},
+
 	Chara = Window:AddTab{ 
 		Title = "OP Functions", 
 		Icon = "flame" 
 	},
-	
 	NewMusic3 = Window:AddTab{
 		Title = "New Custom Music", 
 		Icon = "music-4" 
@@ -96,7 +106,7 @@ local Tabs = {
 		Icon = "music" 
     },
     Change = Window:AddTab{ 
-		Title = "Change Music", 
+		Title = "Customization", 
 		Icon = "headphones" 
     },
     Skins = Window:AddTab{
@@ -112,13 +122,20 @@ local Tabs = {
 		Icon = "info" 
 	},
 	HotScripts = Window:AddTab{ 
-		Title = "Other Scripts", 
+		Title = "Hot-Scripts", 
 		Icon = "scroll" 
 	},
+
 	Settings = Window:AddTab{ 
 		Title = "Settings", 
 		Icon = "settings" 
+	},
+
+	Omega = Window:AddTab{ 
+		Title = "DEBUG Functions", 
+		Icon = "command" 
 	}
+
 }
 
 local funcs = {
@@ -153,11 +170,11 @@ do
 		Title = "CSS UnLocker",
 		Content = "New CSS Script Edition",
 		SubContent = "Please Wait, Script Loading...", -- Optional
-		Duration = 3 -- Set to nil to make the notification not disappear
+		Duration = 6 -- Set to nil to make the notification not disappear
 	}
 	Tabs.Teleport:AddParagraph({
-		Title = "How to correctly teleport to these zones",
-		Content = "Make sure ur in the main menu it should work."
+		Title = "How to correct teleport to unused zones",
+		Content = "Use this functions only on Main Menu"
 	})
 	local SelectTeleportCharacter = Tabs.Teleport:AddDropdown("Dropdown8", {
 		Title = "Select Character",
@@ -191,13 +208,11 @@ do
 			Vars.Chara2Number = 8
 		elseif tpzonechara == "Sonic_SCD" then
 			Vars.Chara2Number = 19
-        elseif tpzonechara == "Sonic_EXE" then
-			Vars.Chara2Number = 20
 		end
 	end)
 	
 	Tabs.Teleport:AddButton({
-		Title = "Teleport To Title Screen",
+		Title = "Teleport To The Title Screen",
 		Callback = function()
 			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
 				if v.Name ~= "FakeTopBar" and v.Name ~= "MusicHandler" and v.Name ~= "TouchGui" then
@@ -207,14 +222,14 @@ do
 			funcs.PlaySound("Warp")
 			local A_1 = 
 				{
-					[1] = "Title Screen",
+					[1] = "Title Screen", 
 					[2] = 1, 
 					[3] = 
 					{
 						[1] = 628, 
 						[2] = 462
 					}, 
-					[4] = 2, 
+					[4] = 3, 
 					[5] = "Title Screen"
 				}
 			local A_2 = tonumber(Vars.Chara2Number)
@@ -227,8 +242,8 @@ do
 			PlrGui.MainMenu:Destroy()
 		end 
 	})
-
-     Tabs.Teleport:AddButton({
+	
+	Tabs.Teleport:AddButton({
 		Title = "Teleport To GGGG Zone",
 		Callback = function()
 			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
@@ -259,7 +274,7 @@ do
 			PlrGui.MainMenu:Destroy()
 		end 
 	})
-
+	
 	Tabs.Teleport:AddButton({
 		Title = "Teleport To Virtual Reality Zone Act 1",
 		Callback = function()
@@ -322,6 +337,71 @@ do
 			PlrGui.MainMenu:Destroy()
 		end 
 	})
+	
+	Tabs.Teleport:AddButton({
+		Title = "Teleport To Old Test Zone Act 1",
+		Callback = function()
+			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
+				if v.Name ~= "FakeTopBar" and v.Name ~= "MusicHandler" and v.Name ~= "TouchGui" then
+					v:Destroy()
+				end
+			end
+			funcs.PlaySound("Warp")
+			local A_1 = 
+				{
+					[1] = "Test", 
+					[2] = 1, 
+					[3] = 
+					{
+						[1] = 628, 
+						[2] = 462
+					}, 
+					[4] = 2, 
+					[5] = "Test"
+				}
+			local A_2 = tonumber(Vars.Chara2Number)
+			local Event = ReplicatedStorage.Remotes.LoadGame
+			Event:FireServer(A_1, A_2)
+			local Event = ReplicatedStorage.Remotes.GetPlayerSettings
+			Event:InvokeServer()
+			local Event = ReplicatedStorage.Remotes.GetMasterData
+			Event:InvokeServer()
+			PlrGui.MainMenu:Destroy()
+		end 
+	})
+	
+	Tabs.Teleport:AddButton({
+		Title = "Teleport To Old Test Zone Act 2",
+		Callback = function()
+			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
+				if v.Name ~= "FakeTopBar" and v.Name ~= "MusicHandler" and v.Name ~= "TouchGui" then
+					v:Destroy()
+				end
+			end
+			funcs.PlaySound("Warp")
+			local A_1 = 
+				{
+					[1] = "Test", 
+					[2] = 2, 
+					[3] = 
+					{
+						[1] = 628, 
+						[2] = 462
+					}, 
+					[4] = 3, 
+					[5] = "Test"
+				}
+			local A_2 = tonumber(Vars.Chara2Number)
+			local Event = ReplicatedStorage.Remotes.LoadGame
+			Event:FireServer(A_1, A_2)
+			local Event = ReplicatedStorage.Remotes.GetPlayerSettings
+			Event:InvokeServer()
+			local Event = ReplicatedStorage.Remotes.GetMasterData
+			Event:InvokeServer()
+			PlrGui.MainMenu:Destroy()
+		end 
+	})
+	
 	Tabs.Teleport:AddButton({
 		Title = "Teleport To Chemical Plant Zone",
 		Callback = function()
@@ -385,7 +465,7 @@ do
 		end 
 	})
 	
-     Tabs.Teleport:AddButton({
+	Tabs.Teleport:AddButton({
 		Title = "Teleport To Metropolis Zone",
 		Callback = function()
 			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
@@ -416,8 +496,8 @@ do
 			PlrGui.MainMenu:Destroy()
 		end 
 	})
-
-     Tabs.Teleport:AddButton({
+	
+		Tabs.Teleport:AddButton({
 		Title = "Teleport To Hydrocity Zone",
 		Callback = function()
 			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
@@ -448,9 +528,8 @@ do
 			PlrGui.MainMenu:Destroy()
 		end 
 	})
-
-      	
-     Tabs.Teleport:AddButton({
+	
+	Tabs.Teleport:AddButton({
 		Title = "Teleport To Ice Cap Zone",
 		Callback = function()
 			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
@@ -481,7 +560,7 @@ do
 			PlrGui.MainMenu:Destroy()
 		end 
 	})
-
+	
 	Tabs.Teleport:AddButton({
 		Title = "Teleport To Sandopolis Zone",
 		Callback = function()
@@ -514,70 +593,12 @@ do
 		end 
 	})
 	
+
 	
-	Tabs.Teleport:AddButton({
-		Title = "Teleport To Old Test Zone Act 1",
-		Callback = function()
-			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
-				if v.Name ~= "FakeTopBar" and v.Name ~= "MusicHandler" and v.Name ~= "TouchGui" then
-					v:Destroy()
-				end
-			end
-			funcs.PlaySound("Warp")
-			local A_1 = 
-				{
-					[1] = "Test", 
-					[2] = 1, 
-					[3] = 
-					{
-						[1] = 628, 
-						[2] = 462
-					}, 
-					[4] = 2, 
-					[5] = "Test"
-				}
-			local A_2 = tonumber(Vars.Chara2Number)
-			local Event = ReplicatedStorage.Remotes.LoadGame
-			Event:FireServer(A_1, A_2)
-			local Event = ReplicatedStorage.Remotes.GetPlayerSettings
-			Event:InvokeServer()
-			local Event = ReplicatedStorage.Remotes.GetMasterData
-			Event:InvokeServer()
-			PlrGui.MainMenu:Destroy()
-		end 
-	})
-	Tabs.Teleport:AddButton({
-		Title = "Teleport To Old Test Zone Act 2",
-		Callback = function()
-			for i,v in pairs(game.Players.LocalPlayer.PlayerGui:GetChildren()) do
-				if v.Name ~= "FakeTopBar" and v.Name ~= "MusicHandler" and v.Name ~= "TouchGui" then
-					v:Destroy()
-				end
-			end
-			funcs.PlaySound("Warp")
-			local A_1 = 
-				{
-					[1] = "Test", 
-					[2] = 2, 
-					[3] = 
-					{
-						[1] = 628, 
-						[2] = 462
-					}, 
-					[4] = 3, 
-					[5] = "Test"
-				}
-			local A_2 = tonumber(Vars.Chara2Number)
-			local Event = ReplicatedStorage.Remotes.LoadGame
-			Event:FireServer(A_1, A_2)
-			local Event = ReplicatedStorage.Remotes.GetPlayerSettings
-			Event:InvokeServer()
-			local Event = ReplicatedStorage.Remotes.GetMasterData
-			Event:InvokeServer()
-			PlrGui.MainMenu:Destroy()
-		end 
-	})
 	
+	
+
+    
 	Tabs.Game:AddSection("Zoom")
 
 	local Dropdown8 = Tabs.Game:AddDropdown("Dropdown8", {
@@ -621,6 +642,7 @@ do
 			PlrGui:WaitForChild("Game").Backdrop.Main.UIScale.Scale = 0.01
 		end
 	end)
+
 	Tabs.Game:AddParagraph({
 		Title = "Log in again to reset"
 	})
@@ -685,8 +707,8 @@ do
 	
 	Tabs.Game:AddSection("Game GUIs")
 
-	local ToggleGui = Tabs.Game:AddToggle("MyToggle", {Title = "Light Dash Effect", Default = false })
-	ToggleGui:OnChanged(function(ToggleGui)
+	local Toggle = Tabs.Game:AddToggle("MyToggle", {Title = "Light Dash Effect", Default = false })
+	Toggle:OnChanged(function(ToggleGui)
 		if ToggleGui == true and game.Players.LocalPlayer.PlayerGui:FindFirstChild("Game") then
 			funcs.PlaySound("Spring")
 			PlrGui:WaitForChild("Game").Backdrop.Main.World:WaitForChild("Ghost1").Visible = true
@@ -719,7 +741,7 @@ do
 	Toggle3:OnChanged(function(HitboxChara)
 		if HitboxChara == true and game.Players.LocalPlayer.PlayerGui:FindFirstChild("Game") then
 			funcs.PlaySound("Spring")
-			PlrGui.Game.Backdrop.Main.World.Objects[game.ReplicatedStorage.Players[game.Players.LocalPlayer.Name].Character.Value].BackgroundTransparency = 0.5
+			PlrGui.Game.Backdrop.Main.World.Objects[game.ReplicatedStorage.Players[game.Players.LocalPlayer.Name].Character.Value].BackgroundTransparency = 1
 		end
 		if HitboxChara == false and game.Players.LocalPlayer.PlayerGui:FindFirstChild("Game") then
 			PlrGui.Game.Backdrop.Main.World.Objects[game.ReplicatedStorage.Players[game.Players.LocalPlayer.Name].Character.Value].BackgroundTransparency = 1
@@ -856,9 +878,10 @@ do
 		end
 	end)
 
+    
 		Tabs.Game:AddSection("Change Character Abilities")
 
-		local Toggle12 = Tabs.Game:AddToggle("MyToggle12", {Title = "Maximiser's Changes'", Default = false })
+		local Toggle12 = Tabs.Game:AddToggle("MyToggle12", {Title = "Change Characters Abilities", Default = false })
 	Toggle12:OnChanged(function(ToggleGui11)
 		if ToggleGui11 == true then
 			funcs.PlaySound("medal")
@@ -1503,6 +1526,8 @@ do
     }
 		end
 	end)
+
+	
 	Tabs.Subject:AddParagraph({
 		Title = "WARNING!!!",
 		Content = "If you launch any subject while in the creator, the progress of changing/creating the level will be reset"
@@ -1523,11 +1548,11 @@ do
 		OldSubjectID = SubjectID
 		print(SubjectID)
 	end)
-	]]
+	--]]
 
 	local Dropdown7 = Tabs.Subject:AddDropdown("Dropdown7", {
 		Title = "Select New Subject",
-		Values = {"MainMenu", "LevelSelect", "ManageLevels", "ManageStages", "AdventureManageGui", "AnimationGui", "LevelCreator", "Game"},
+		Values = {"MainMenu", "LevelSelect", "ManageLevels", "ManageStages", "AdventureManageGui", "AnimationGui"},
 		Multi = false,
 		Default = "MainMenu",
 	})
@@ -1994,6 +2019,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Book_Shelf_Big.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2008,6 +2034,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Book_Shelf_Small.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2022,6 +2049,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Fruit_Chao.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2036,6 +2064,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Picture1.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2050,6 +2079,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Picture2.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2064,6 +2094,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Cake_Slice.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2078,6 +2109,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Table2.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2092,6 +2124,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Table.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2106,6 +2139,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Couch.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2120,6 +2154,7 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
 			local clone = ReplicatedStorage.Objects.HZ__Couch_Small.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddSection("Unused/Cutted Objects")
@@ -2131,10 +2166,11 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 145
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 24, 0, 8)
+			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 46, 0, 78)
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
-			local clone = ReplicatedStorage.Objects.HZ__Couch_Small.Sprite:Clone()  
+			local clone = ReplicatedStorage.Objects.AIZ_Rock_Breakable_Big.Sprite:Clone()  
 			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2145,6 +2181,11 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 144
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 46, 0, 46)
+			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
+			local clone = ReplicatedStorage.Objects.AIZ_Rock_Breakable_Med.Sprite:Clone()  
+			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2155,6 +2196,11 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 146
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 46, 0, 32)
+			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
+			local clone = ReplicatedStorage.Objects.AIZ_Rock_Smashable.Sprite:Clone()  
+			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2165,16 +2211,11 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 143
-		end 
-	})
-		Tabs.LevelCreator:AddButton({
-		Title = "custom object test - ID 600",
-		Callback = function()
-			funcs.PlaySound("Ring")
-			Instance.new("NumberValue",PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring)
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 600
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 46, 0, 32)
+			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
+			local clone = ReplicatedStorage.Objects.AIZ_Rock_Breakable_Small.Sprite:Clone()  
+			clone.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2185,6 +2226,17 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 373
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 16, 0, 64)
+			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
+			local clone1 = ReplicatedStorage.Objects.GHZ_Wall_7:GetChildren()[6]:Clone()
+            local clone2 = ReplicatedStorage.Objects.GHZ_Wall_7.Sprite:Clone()
+            local clone3 = ReplicatedStorage.Objects.GHZ_Wall_7:GetChildren()[5]:Clone()
+            local clone4 = ReplicatedStorage.Objects.GHZ_Wall_7:GetChildren()[4]:Clone()
+			clone1.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            clone2.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            clone3.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            clone4.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -2195,18 +2247,48 @@ do
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 374
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 16, 0, 64)
+			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite:Destroy()
+			local clone1 = ReplicatedStorage.Objects.GHZ_Wall_8:GetChildren()[6]:Clone()
+            local clone2 = ReplicatedStorage.Objects.GHZ_Wall_8.Sprite:Clone()
+            local clone3 = ReplicatedStorage.Objects.GHZ_Wall_8:GetChildren()[5]:Clone()
+            local clone4 = ReplicatedStorage.Objects.GHZ_Wall_8:GetChildren()[4]:Clone()
+			clone1.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            clone2.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            clone3.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            clone4.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = true
 		end 
 	})
-	Tabs.LevelCreator:AddButton({
-		Title = "Insert Triple Rotating Bumpers",
-		Callback = function()
-			funcs.PlaySound("Ring")
-			Instance.new("NumberValue",PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring)
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 514
-		end 
-	})
+Tabs.LevelCreator:AddButton({
+    Title = "Insert Triple Rotating Bumpers",
+    Callback = function()
+        funcs.PlaySound("Ring")
+        if PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring:FindFirstChild("Hitboxes") then
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Hitboxes:Destroy()
+            if PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring:FindFirstChild("Delete") then
+                PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Delete:Destroy()
+            end
+            return
+        end
+
+        Instance.new("NumberValue", PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring)
+        PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
+        PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
+        PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 514
+        PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Size = UDim2.new(0, 16, 0, 16)
+
+        local clone1 = ReplicatedStorage.Objects.TZ__Bumper_Rotating_3064.Hitboxes:Clone()
+        local clone2 = ReplicatedStorage.Objects.TZ__Bumper_Rotating_3064.Delete:Clone()
+        clone1.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+        clone2.Parent = PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring
+
+        if PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring:FindFirstChild("Hitboxes") and PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Hitboxes:FindFirstChild("1") then
+            PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Hitboxes["1"].Image = "rbxassetid://113799670647725"
+    PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Sprite.Visible = false
+        end
+    end
+})
 	Tabs.LevelCreator:AddSection("Objects From Mystic Cave")
 	Tabs.LevelCreator:AddButton({
 		Title = "Insert Block",
@@ -2346,7 +2428,7 @@ do
 			Instance.new("NumberValue",PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring)
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId:Destroy()
 			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.Value.Name = "ObjId"
-			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 34
+			PlrGui.LevelCreator.Backdrop.Screen.ObjectsList.Ring.Ring.ObjId.Value = 33
 		end 
 	})
 	Tabs.LevelCreator:AddButton({
@@ -3462,18 +3544,75 @@ do
 			end
 		end
 	})
-	
+	Tabs.Omega:AddButton({
+		Title = "Spoof Developer",
+		Callback = function()
+			funcs.PlaySound("lshieldget")
+			local OldName = Instance.new("StringValue", workspace)
+			OldName.Value = tostring(game.Players.LocalPlayer.Name)
 
-	
+			game.Players.LocalPlayer.Name = "AkikoDev"
 
-
+			while wait(0.1) do
+				game.ReplicatedStorage.Players:WaitForChild(OldName.Value).Name = "AkikoDev"
+			end
+		end
+	})
+	local Input = Tabs.Omega:AddInput("Input", {
+		Title = "Do An Animation (in debug)",
+		Default = "debugging",
+		Placeholder = "None",
+		Numeric = false, -- Only allows numbers
+		Finished = false, -- Only calls Callback when you press enter
+		Callback = function(AnID)
+			AnimationID = AnID
+			print(AnID)
+		end
+	})
+	Tabs.Omega:AddParagraph({
+		Title = "Animations",
+		Content = "All Animations : hide, debugging, walking, walking2, walking, walking4, flying, flytired, flyswim, flyswimtired, flyswimup, peelout, sprinting, sprinting2, sprinting3, sprinting4, running, running2, running3, running4, lightdashing, lightdashing2, lightdashing3, lightdashing4, glinding, glinding2, glinding3, glidefall, climbing, climbingmove, land, slide, getup, jumping, jump, jump2, jumpfall, jetpack, hammering, rolling, pushing, balancing, balancing3, balancingf, spindash, dead, drown, bubble, ducking, lookup, hurting, fall, springing, springing2, standing, braking, pose, door_enter, door_leave, carried, vine"
+	})
+	Tabs.Omega:AddButton({
+		Title = "Do Animation",
+		Callback = function()
+			funcs.PlaySound("lshieldget")
+			for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+				if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+					v:WaitForChild("Sprite"):WaitForChild("Frame").Value = "1"
+				end
+			end
+			for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+				if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+					v:WaitForChild("Sprite"):WaitForChild("Animation").Value = "" .. tostring(AnimationID)
+				end
+			end
+		end
+	})
+	local Toggle = Tabs.Omega:AddToggle("MyToggle", {Title = "Flip Player (in debug)", Default = false })
+	Toggle:OnChanged(function(ToggleY)
+		if ToggleY == true and game.Players.LocalPlayer.PlayerGui:FindFirstChild("Game") then
+			for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+				if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+					v:WaitForChild("Sprite"):WaitForChild("SpriteDirY").Value = "-1"
+				end
+			end
+		end
+		if ToggleY == false and game.Players.LocalPlayer.PlayerGui:FindFirstChild("Game") then
+			for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+				if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+					v:WaitForChild("Sprite"):WaitForChild("SpriteDirY").Value = "1"
+				end
+			end
+		end
+	end)
 	Tabs.NewMusic3:AddParagraph({
 		Title = "How to listen cutten music",
 		Content = "First, go in Level Creator and click on the red music on topbar, click on buttons in script and songs id put automatically"
 	})
 	Tabs.NewMusic3:AddParagraph({
 		Title = "Your music may be different",
-		Content = "All you need to do is join the CSS GENIE Hub Discord channel, and send your username and music id on the custom music channel"
+		Content = "All you need to do is join the CSS GENIE Hub Discord channel in the Channels tab, and send your username and music id on the custom music channel"
 	})
 	Tabs.NewMusic3:AddSection("Music Founded By CSS-FLOUNT")
 	Tabs.NewMusic3:AddButton({
@@ -4076,12 +4215,123 @@ do
 			game.Players.LocalPlayer.PlayerGui.LevelCreator.Backdrop.Screen.Windows.Music.Frame.Custom.Text = "497761787"
 		end 
 	})
-		Tabs.NewMusic:AddButton({
+	Tabs.NewMusic:AddButton({
 		Title = "Sky Scraper High",
 		Callback = function()
 			game.Players.LocalPlayer.PlayerGui.LevelCreator.Backdrop.Screen.Windows.Music.Frame.Custom.Text = "1250585615"
 		end 
 	})
+    Tabs.Change:AddSection("Customize CSS")
+    Tabs.Change:AddParagraph({
+		Title = "Customize the CSS background for yourself",
+        Content = "It is better to use functions in the main menu"
+	})
+    Tabs.Change:AddSection("Customize Background Gradient")
+    Tabs.Change:AddSection("Customize Background Element 1")
+    Tabs.Change:AddSection("Customize Background Element 2")
+    Tabs.Change:AddSection("Customize Character")
+    Tabs.Change:AddButton({
+        Title = "Sonic On Background",
+        Callback = function()
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local sonicID = "rbxassetid://4508545299"
+            
+            imageLabel.Position = UDim2.new(0.5, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 128, 0, 128)
+
+            if imageLabel.Image == sonicID then
+                return
+            end
+        
+            imageLabel.Image = sonicID
+            currentBackground = "Sonic"
+        end
+    })
+    Tabs.Change:AddButton({
+        Title = "Tails On Background",
+        Callback = function()
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local tailsID = "rbxassetid://124111498905432"
+            
+            imageLabel.Position = UDim2.new(0.502, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 128, 0, 128)
+
+            if imageLabel.Image == tailsID then
+                return
+            end
+        
+            imageLabel.Image = tailsID
+            currentBackground = "Tails"
+        end
+    })
+    Tabs.Change:AddButton({
+        Title = "Knuckles On Background",
+        Callback = function()
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local knucklesID = "rbxassetid://98220094742880"
+            
+            imageLabel.Position = UDim2.new(0.5, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 128, 0, 128)
+
+            if imageLabel.Image == knucklesID then
+                return
+            end
+        
+            imageLabel.Image = knucklesID
+            currentBackground = "Knuckles"
+        end
+    })
+    Tabs.Change:AddButton({
+        Title = "Amy On Background",
+        Callback = function()
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local amyID = "rbxassetid://77889917273256"
+            
+            imageLabel.Position = UDim2.new(0.496, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 136, 0, 136)
+
+            if imageLabel.Image == amyID then
+                return
+            end
+        
+            imageLabel.Image = amyID
+            currentBackground = "Amy"
+        end
+    })
+    Tabs.Change:AddButton({
+        Title = "Metal Sonic On Background",
+        Callback = function()
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local metalsonicID = "rbxassetid://114396730092664"
+            
+            imageLabel.Position = UDim2.new(0.5, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 136, 0, 136)
+
+            if imageLabel.Image == metalsonicID then
+                return
+            end
+        
+            imageLabel.Image = metalsonicID
+            currentBackground = "Metal Sonic"
+        end
+    })
+    Tabs.Change:AddButton({
+        Title = "Dr Robotnik On Background",
+        Callback = function()
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local drrobotnikID = "rbxassetid://111541726029480"
+        
+            imageLabel.Position = UDim2.new(0.4934, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 156, 0, 156)
+
+            if imageLabel.Image == drrobotnikID then
+                return
+            end
+        
+            imageLabel.Image = drrobotnikID
+            currentBackground = "Dr Robotnik"
+        end
+    })
     Tabs.Change:AddParagraph({
 		Title = "Change music in Main Menu and Level Creator!",
         Content = "Use 10th menu music in CSS settings to change Main Menu music"
@@ -4113,6 +4363,175 @@ do
             game:GetService("ReplicatedStorage").Music["Sonic Mega Collection"]["Extra & History Menu"].Loop.Value = "3524195336"
 		end 
 	})
+    Tabs.Visual:AddSection("Main Menu Theme's")
+        Tabs.Visual:AddButton({
+            Title = "Sonic Theme (Main)",
+            Callback = function()
+            BackgroundImage.ImageColor3 = Color3.fromRGB(35, 152, 255)
+            Ug.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 64, 255)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(12, 64, 255)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 247))
+            })
+            El1.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 40, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 40, 40))
+            })
+            El2.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 0))
+            })
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local sonicID = "rbxassetid://4508545299"
+            imageLabel.Position = UDim2.new(0.502, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 128, 0, 128)
+            if imageLabel.Image == sonicID then
+                return
+            end
+            imageLabel.Image = sonicID
+            currentBackground = "Sonic"
+        end
+    })
+        Tabs.Visual:AddButton({
+            Title = "Tails Theme",
+            Callback = function()
+            BackgroundImage.ImageColor3 = Color3.fromRGB(255, 200, 50)
+            Ug.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 120, 20)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 160, 30)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 50))
+            })
+            El1.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 40, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 40, 40))
+            })
+            El2.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 150, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 150, 40))
+            })
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local tailsID = "rbxassetid://124111498905432"
+            imageLabel.Position = UDim2.new(0.502, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 128, 0, 128)
+            if imageLabel.Image == tailsID then
+                return
+            end
+            imageLabel.Image = tailsID
+            currentBackground = "Tails"
+        end
+    })
+        Tabs.Visual:AddButton({
+            Title = "Knuckles Theme",
+            Callback = function()
+            BackgroundImage.ImageColor3 = Color3.fromRGB(60, 200, 60)
+            Ug.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 80, 20)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(30, 150, 30)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 200, 60))
+            })
+            El1.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 40, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 40, 40))
+            })
+            El2.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 0))
+            })
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local knucklesID = "rbxassetid://98220094742880"
+            imageLabel.Position = UDim2.new(0.5, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 128, 0, 128)
+            if imageLabel.Image == knucklesID then
+                return
+            end
+            imageLabel.Image = knucklesID
+            currentBackground = "Knuckles"
+        end
+    })
+        Tabs.Visual:AddButton({
+            Title = "Amy Theme",
+            Callback = function()
+            BackgroundImage.ImageColor3 = Color3.fromRGB(255, 200, 210)
+            Ug.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(220, 100, 140)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 150, 180)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 210))
+            })
+            El1.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 40, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 40, 40))
+            })
+            El2.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 0))
+            })
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local amyID = "rbxassetid://77889917273256"
+            imageLabel.Position = UDim2.new(0.496, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 136, 0, 136)
+            if imageLabel.Image == amyID then
+                return
+            end
+            imageLabel.Image = amyID
+            currentBackground = "Amy"
+        end
+    })
+        Tabs.Visual:AddButton({
+            Title = "Metal Sonic Theme",
+            Callback = function()
+            BackgroundImage.ImageColor3 = Color3.fromRGB(30, 100, 220)
+            Ug.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 20, 120)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 60, 180)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 100, 220))
+            })
+            El1.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 40, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 40, 40))
+            })
+            El2.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 0)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 200, 0))
+            })
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local metalsonicID = "rbxassetid://114396730092664"
+            imageLabel.Position = UDim2.new(0.5, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 152, 0, 152)
+            if imageLabel.Image == metalsonicID then
+                return
+            end
+            imageLabel.Image = metalsonicID
+            currentBackground = "Metal Sonic"
+        end
+    })
+        Tabs.Visual:AddButton({
+            Title = "Dr Robotnik Theme",
+            Callback = function()
+            BackgroundImage.ImageColor3 = Color3.fromRGB(200, 60, 60)
+            Ug.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 30, 30)),
+                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120, 20, 20)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 30, 30))
+            })
+            El1.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 40, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 40, 40))
+            })
+            El2.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(230, 140, 40)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 140, 40))
+            })
+            local imageLabel = workspace.Misc.CSS:GetChildren()[3].SurfaceGui.Frame.ImageLabel
+            local drrobotnikID = "rbxassetid://111541726029480"
+            imageLabel.Position = UDim2.new(0.4934, 48, 0.5, 0)
+            imageLabel.Size = UDim2.new(0, 156, 0, 156)
+            if imageLabel.Image == drrobotnikID then
+                return
+            end
+            imageLabel.Image = drrobotnikID
+            currentBackground = "Dr Robotnik"
+        end
+    })
 	Tabs.Visual:AddParagraph({
 		Title = "Load Objects",
         Content = "Local correct sprite's of objects"
@@ -5923,236 +6342,633 @@ do
 			game.ReplicatedStorage.Players[game.Players.LocalPlayer.Name].Admin.Value = "3"
 		end 
 	})
-    Tabs.Skins:AddParagraph({
-		Title = "Local Skins",
-        Content = "Change character skins here!"
+	Tabs.Skins:AddButton({
+		Title = "Sonic_S1 To Sonic_S1_Rose",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://11916868414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://11916868414"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
 	})
-		local ABSGCharaToggle3 = Tabs.Skins:AddToggle("ABSGCharaToggle3", {Title = "Sonic_S1 To Sonic_S1_PP", Default = false })
-	ABSGCharaToggle3:OnChanged(function(ABSGCharaToggle3)
-		if ABSGCharaToggle3 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_S1"].Sprite.Image = "rbxassetid://14697104690"
-		end
-		if ABSGCharaToggle3 == false then
-			ReplicatedStorage.Objects["Sonic_S1"].Sprite.Image = "rbxassetid://8769231388"
-		end
-	end)
-	local ABSGCharaToggle2 = Tabs.Skins:AddToggle("ABSGCharaToggle2", {Title = "Sonic_S1 To Sonic_S1_Rose", Default = false })
-	ABSGCharaToggle2:OnChanged(function(ABSGCharaToggle2)
-		if ABSGCharaToggle2 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_S1"].Sprite.Image = "rbxassetid://11916868414"
-		end
-		if ABSGCharaToggle2 == false then
-			ReplicatedStorage.Objects["Sonic_S1"].Sprite.Image = "rbxassetid://8769231388"
-		end
-	end)
-
-		local ABSGCharaToggle4 = Tabs.Skins:AddToggle("ABSGCharaToggle4", {Title = "Sonic_SCD To Sonic_SCD_Rose", Default = false })
-	ABSGCharaToggle4:OnChanged(function(ABSGCharaToggle4)
-		if ABSGCharaToggle4 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_SCD"].Sprite.Image = "rbxassetid://11916949150"
-		end
-		if ABSGCharaToggle4 == false then
-			ReplicatedStorage.Objects["Sonic_SCD"].Sprite.Image = "rbxassetid://14697104690"
-		end
-	end)
-
-		local ABSGCharaToggle5 = Tabs.Skins:AddToggle("ABSGCharaToggle5", {Title = "Sonic_SCD To Sonic_SCD_PP", Default = false })
-	ABSGCharaToggle5:OnChanged(function(ABSGCharaToggle5)
-		if ABSGCharaToggle5 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_SCD"].Sprite.Image = "rbxassetid://14697104690"
-		end
-		if ABSGCharaToggle5 == false then
-			ReplicatedStorage.Objects["Sonic_SCD"].Sprite.Image = "rbxassetid://8769231388"
-		end
-	end)
-	local ABSGCharaToggle6 = Tabs.Skins:AddToggle("ABSGCharaToggle6", {Title = "Sonic_S2 To Sonic_S2_Ashura", Default = false })
-	ABSGCharaToggle6:OnChanged(function(ABSGCharaToggle6)
-		if ABSGCharaToggle6 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_S2"].Sprite.Image = "rbxassetid://8351048024"
-		end
-		if ABSGCharaToggle6 == false then
-			ReplicatedStorage.Objects["Sonic_S2"].Sprite.Image = "rbxassetid://8351046678"
-		end
-	end)
-	local ABSGCharaToggle7 = Tabs.Skins:AddToggle("ABSGCharaToggle7", {Title = "Sonic_S3 To Sonic_S3_Super", Default = false })
-	ABSGCharaToggle7:OnChanged(function(ABSGCharaToggle7)
-		if ABSGCharaToggle7 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_S3"].Sprite.Image = "rbxassetid://16101096063"
-		end
-		if ABSGCharaToggle7 == false then
-			ReplicatedStorage.Objects["Sonic_S3"].Sprite.Image = "rbxassetid://10964118318"
-		end
-	end)
-		local ABSGCharaToggle8 = Tabs.Skins:AddToggle("ABSGCharaToggle8", {Title = "or... Super_Sonic To Sonic_S3_Super", Default = false })
-	ABSGCharaToggle8:OnChanged(function(ABSGCharaToggle8)
-		if ABSGCharaToggle8 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Super_Sonic"].Sprite.Image = "rbxassetid://16101096063"
-			ReplicatedStorage.Animations["Super_Sonic"].Name = "Sonic_S3"
-			ReplicatedStorage.Animations["Sonic_S3"].Name = "Super_Sonic"
-		end
-		if ABSGCharaToggle7 == false then
-			ReplicatedStorage.Objects["Super_Sonic"].Sprite.Image = "rbxassetid://10964118318"
-			ReplicatedStorage.Animations["Sonic_S3"].Name = "Super_Sonic"
-			ReplicatedStorage.Animations["Super_Sonic"].Name = "Sonic_S3"
-		end
-	end)
-		local ABSGCharaToggle9 = Tabs.Skins:AddToggle("ABSGCharaToggle9", {Title = "Sonic_S3 To Sonic_S3_Red", Default = false })
-	ABSGCharaToggle9:OnChanged(function(ABSGCharaToggle9)
-		if ABSGCharaToggle9 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_S3"].Sprite.Image = "rbxassetid://8351050153"
-		end
-		if ABSGCharaToggle9 == false then
-			ReplicatedStorage.Objects["Sonic_S3"].Sprite.Image = "rbxassetid://10964118318"
-		end
-	end)
-    local ABSGCharaToggle1 = Tabs.Skins:AddToggle("ABSGCharaToggle1", {Title = "Knuckles_S3 To Knuckles_S3_Blue", Default = false })
-	ABSGCharaToggle1:OnChanged(function(ABSGCharaToggle1)
-		if ABSGCharaToggle1 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Knuckles_S3"].Sprite.Image = "rbxassetid://8713090433"
-		end
-		if ABSGCharaToggle1 == false then
-			ReplicatedStorage.Objects["Knuckles_S3"].Sprite.Image = "rbxassetid://115067833918707"
-		end
-	end)
-    Tabs.Skins:AddParagraph({
-		Title = "Fanmade Skins"
+	Tabs.Skins:AddButton({
+		Title = "Sonic_S1 To Sonic_S1_PP",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://14697104690"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://14697104690"
+                            if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                                break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
 	})
-	local FanmadeCharaToggle2 = Tabs.Skins:AddToggle("FanmadeCharaToggle2", {Title = "Sonic_S1 To Sonic_SMS", Default = false })
-	FanmadeCharaToggle2:OnChanged(function(FanmadeCharaToggle2)
-		if FanmadeCharaToggle2 == true then
-			funcs.PlaySound("pop")
-            ReplicatedStorage.Objects["Sonic_S1"].Sprite.Image = "rbxassetid://123220343629348"
-		end
-		if FanmadeCharaToggle2 == false then
-			ReplicatedStorage.Objects["Sonic_S1"].Sprite.Image = "rbxassetid://8769231388"
-		end
-	end)
-		local FanmadeCharaToggle1 = Tabs.Skins:AddToggle("FanmadeCharaToggle1", {Title = "Sonic_S2 To Sonic_Purple_S2_XL", Default = false })
-	FanmadeCharaToggle1:OnChanged(function(FanmadeCharaToggle1)
-		if FanmadeCharaToggle1 == true then
-			funcs.PlaySound("pop")
-			ReplicatedStorage.Objects["Sonic_S2"].Sprite.Image = "rbxassetid://104773557561077"
-		end
-		if FanmadeCharaToggle1 == false then
-			ReplicatedStorage.Objects["Sonic_S2"].Sprite.Image = "rbxassetid://8351046678"
-		end
-	end)
-
+	Tabs.Skins:AddButton({
+		Title = "Sonic_SCD To Sonic_SCD_Rose",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://11916949150"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://11916949150"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+	Tabs.Skins:AddButton({
+		Title = "Sonic_SCD To Sonic_SCD_PP",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://14697133708"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://14697133708"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+	Tabs.Skins:AddButton({
+		Title = "Sonic_S2 To Sonic_S2_Ashura",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://8351048024"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://8351048024"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+	Tabs.Skins:AddButton({
+		Title = "Sonic_S3 To Sonic_S3_Red",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://8351050153"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://8351050153"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+	Tabs.Skins:AddButton({
+		Title = "Knuckles_S3 To Knuckles_S3_Blue",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://8713090433"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://8713090433"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+    Tabs.Skins:AddParagraph({
+		Title = "ABSG Skins"
+	})
+    Tabs.Skins:AddButton({
+		Title = "Knuckles_S3 To Knuckles_S3_Rival",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://74363875406477"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://74363875406477"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+    Tabs.Skins:AddButton({
+		Title = "Knuckles_S3 To Knuckles_S3_Tikal",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://123761079084608"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://123761079084608"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+    Tabs.Skins:AddButton({
+		Title = "Sonic_S3 To Sonic_S3_Espio",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://115029377851670"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://115029377851670"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+    Tabs.Skins:AddButton({
+		Title = "Sonic_S3 To Sonic_S3_Silver",
+		Callback = function()
+			funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do  
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name then
+						v:WaitForChild("Sprite").Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeIcon.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://84556288538189"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://84556288538189"
+                        if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                            break
+                            end
+					    end
+				    end
+			    end
+		    end
+        end
+	})
+    Tabs.Skins:AddButton({
+		Title = "Tails_S3 To Tails_S3_Ray",
+		Callback = function()
+	funcs.PlaySound("warp")
+        PlrGui:WaitForChild("Game") do
+			while wait(0) do
+				for i,v in pairs(game.Players.LocalPlayer.PlayerGui.Game.Backdrop.Main.World.Objects:GetChildren()) do
+					if v:FindFirstChild("Player") and v:WaitForChild("Player").Value == game.Players.LocalPlayer.Name and ReplicatedStorage.Players:FindFirstChild(game.Players.LocalPlayer.Name).Character.Value == "Tails_S3" then
+						v:WaitForChild("Sprite").Image = "rbxassetid://138533771906414"
+                        v:WaitForChild("Tail").Image = "rbxassetid://138533771906414"
+                        PlrGui.Game.Backdrop.Main.PlayerList:WaitForChild(game.Players.LocalPlayer.Name).Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter.Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["2"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.LifeCounter["3"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main:WaitForChild("LifeIcon").Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter.Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["1"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["2"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.RingCounter["3"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Rings.Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Score.Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter.Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["1"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["2"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["3"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["4"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["5"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["6"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.ScoreCounter["7"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.Time.Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter.Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["\""].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["1"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["2"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["3"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["4"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["5"].Image = "rbxassetid://138533771906414"
+						PlrGui.Game.Backdrop.Main.Hud.Main.TimeCounter["6"].Image = "rbxassetid://138533771906414"
+                if v:WaitForChild("Sprite"):WaitForChild("Animation").Value == "dead" and v:WaitForChild("Sprite"):WaitForChild("Animation").Value == "drown" then do
+                    if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                    if game.Players.LocalPlayer.PlayerGui:WaitForChild("CustomLevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelSelect") and game.Players.LocalPlayer.PlayerGui:WaitForChild("LevelCreator") then
+                        break
+                    end
+                    end
+                end
+			end
+		        end
+            end
+	    end
+            end
+        end
+	})
 	Tabs.Skins:AddParagraph({
 		Title = "Admin Skins"
 	})
-	local AdminCharaToggle1 = Tabs.Skins:AddToggle("AdminCharaToggle1", {Title = "Sonic_S1 To Sonic_EXE", Default = false })
+	local AdminCharaToggle1 = Tabs.Skins:AddToggle("AdminCharaToggle1", {Title = "Sonic_SCD To Sonic_EXE", Default = false })
 	AdminCharaToggle1:OnChanged(function(AdminCharaToggle1)
 		if AdminCharaToggle1 == true then
 			funcs.PlaySound("pop")
-			ReplicatedStorage.Objects["Sonic_EXE"].Name = "Sonic_S1"
-			ReplicatedStorage.Objects["Sonic_S1"].Name = "Sonic_EXE"
-			ReplicatedStorage.Animations["Sonic_EXE"].Name = "Sonic_S1"
-			ReplicatedStorage.Animations["Sonic_S1"].Name = "Sonic_EXE"
+            ReplicatedStorage.Objects["Sonic_SCD"].Sprite.Image = "rbxassetid://8351052419"
 		end
 		if AdminCharaToggle1 == false then
-			ReplicatedStorage.Objects["Sonic_S1"].Name = "Sonic_EXE"
-            ReplicatedStorage.Objects["Sonic_EXE"].Name = "Sonic_S1"
-			ReplicatedStorage.Animations["Sonic_S1"].Name = "Sonic_EXE"
-            ReplicatedStorage.Animations["Sonic_EXE"].Name = "Sonic_S1"
+    		ReplicatedStorage.Objects["Sonic_SCD"].Sprite.Image = "rbxassetid://108504600343511"
 		end
 	end)
-
-local AdminCharaToggle2 = Tabs.Skins:AddToggle("AdminCharaToggle2", {Title = "Sonic_SCD To Sonic_Tiny", Default = false })
+	local AdminCharaToggle2 = Tabs.Skins:AddToggle("AdminCharaToggle2", {Title = "Dr_Robotnik To Baldi", Default = false })
 	AdminCharaToggle2:OnChanged(function(AdminCharaToggle2)
 		if AdminCharaToggle2 == true then
 			funcs.PlaySound("pop")
-			ReplicatedStorage.Objects["Sonic_Tiny"].Name = "Sonic_SCD"
-			ReplicatedStorage.Objects["Sonic_SCD"].Name = "Sonic_Tiny"
-			ReplicatedStorage.Animations["Sonic_SCD"].Name = "Sonic_Tiny"
-			ReplicatedStorage.Animations["Sonic_Tiny"].Name = "Sonic_SCD"
+			ReplicatedStorage.Objects.Dr_Robotnik.Sprite.Image = "rbxassetid://8351074422"
+			ReplicatedStorage.Animations["Baldi"].Name = "Dr_Robotnik"
+			ReplicatedStorage.Animations["Dr_Robotnik"].Name = "Baldi"
 		end
 		if AdminCharaToggle2 == false then
-			ReplicatedStorage.Objects["Sonic_SCD"].Name = "Sonic_Tiny"
-            ReplicatedStorage.Objects["Sonic_Tiny"].Name = "Sonic_SCD"
-			ReplicatedStorage.Animations["Sonic_Tiny"].Name = "Sonic_SCD"
-            ReplicatedStorage.Animations["Sonic_SCD"].Name = "Sonic_Tiny"
-		end
-	end)
-
-
-	local AdminCharaToggle4 = Tabs.Skins:AddToggle("AdminCharaToggle4", {Title = "Dr_Robotnik To Baldi", Default = false })
-	AdminCharaToggle4:OnChanged(function(AdminCharaToggle4)
-		if AdminCharaToggle4 == true then
-			funcs.PlaySound("pop")
-			ReplicatedStorage.Objects["Baldi"].Name = "Dr_Robotnik"
-			ReplicatedStorage.Objects["Dr_Robotnik"].Name = "Baldi"
-			ReplicatedStorage.Animations["Baldi"].Name = "Dr_Robotnik"
-			ReplicatedStorage.Animations["Dr_Robotnik"].Name = "Baldi"
-		end
-		if AdminCharaToggle4 == false then
-			ReplicatedStorage.Objects["Dr_Robotnik"].Name = "Baldi"
-			ReplicatedStorage.Objects["Baldi"].Name = "Dr_Robotnik"
+			ReplicatedStorage.Objects.Dr_Robotnik.Sprite.Image = "rbxassetid://8351086842"
 			ReplicatedStorage.Animations["Dr_Robotnik"].Name = "Baldi"
 			ReplicatedStorage.Animations["Baldi"].Name = "Dr_Robotnik"
 		end
 	end)
-	local AdminCharaToggle5 = Tabs.Skins:AddToggle("AdminCharaToggle5", {Title = "Shadow_S3 To Mushroom_Orange", Default = false })
-	AdminCharaToggle5:OnChanged(function(AdminCharaToggle5)
-		if AdminCharaToggle5 == true then 
+	local AdminCharaToggle3 = Tabs.Skins:AddToggle("AdminCharaToggle3", {Title = "Shadow_S3 To Mushroom_Orange", Default = false })
+	AdminCharaToggle3:OnChanged(function(AdminCharaToggle3)
+		if AdminCharaToggle3 == true then 
 			funcs.PlaySound("pop")
 			ReplicatedStorage.Objects["Mushroom_Orange"].Name = "Shadow_S3"
 			ReplicatedStorage.Objects["Shadow_S3"].Name = "Mushroom_Orange"
 			ReplicatedStorage.Animations["Mushroom_Orange"].Name = "Shadow_S3"
 			ReplicatedStorage.Animations["Shadow_S3"].Name = "Mushroom_Orange"
 		end
-		if AdminCharaToggle5 == false then
+		if AdminCharaToggle3 == false then
 			ReplicatedStorage.Objects["Shadow_S3"].Name = "Mushroom_Orange"
 			ReplicatedStorage.Objects["Mushroom_Orange"].Name = "Shadow_S3"
 			ReplicatedStorage.Animations["Shadow_S3"].Name = "Mushroom_Orange"
 			ReplicatedStorage.Animations["Mushroom_Orange"].Name = "Shadow_S3"
 		end
 	end)
-		local AdminCharaToggle6 = Tabs.Skins:AddToggle("AdminCharaToggle6", {Title = "Shadow_S3 To Mushroom_Orange", Default = false })
-	AdminCharaToggle6:OnChanged(function(AdminCharaToggle6)
-		if AdminCharaToggle6 == true then 
-			funcs.PlaySound("pop")
-			ReplicatedStorage.Objects["Mushroom_Orange"].Name = "Shadow_S3"
-			ReplicatedStorage.Objects["Shadow_S3"].Name = "Mushroom_Orange"
-		end
-		if AdminCharaToggle6 == false then
-			ReplicatedStorage.Objects["Shadow_S3"].Name = "Mushroom_Orange"
-			ReplicatedStorage.Objects["Mushroom_Orange"].Name = "Shadow_S3"
-			ReplicatedStorage.Animations["Shadow_S3"].Name = "Mushroom_Orange"
-			ReplicatedStorage.Animations["Mushroom_Orange"].Name = "Shadow_S3"
-		end
-	end)
-	
 	
 	Tabs.Info:AddParagraph({
 		Title = "Many thanks to Gamer_Player for correcting the script in past versions!",
         Content = "You're no longer a developer, you're a memory, I won't forget you"
 	})
 	Tabs.Info:AddParagraph({
-		Title = "Version 21426-2",
+		Title = "Version 21426-8 'Developer Build'",
 		Content = "From Classic Sonic Simulator V13.2 - V13.3"
 	})
 	Tabs.Info:AddParagraph({
 		Title = "Developer Of Script",
 		Content = "EnGenie"
 	})
-		Tabs.Info:AddParagraph({
-		Title = "A friend, and someone who modified this script",
-		Content = "TSM_Maximiser"
+	Tabs.Info:AddParagraph({
+		Title = "Editor Of This Version",
+		Content = "LL3YTz."
 	})
+
 	Tabs.Info:AddParagraph({
 		Title = "Name Of Script UI",
-		Content = "Fluent-Plus"
+		Content = "Fluent-Plus-Updated"
 	})
+	
 	Tabs.HotScripts:AddButton({
 		Title = "Open Dex Explorer",
 		Callback = function()
@@ -6169,6 +6985,28 @@ local AdminCharaToggle2 = Tabs.Skins:AddToggle("AdminCharaToggle2", {Title = "So
 		end 
 	})
 	
+	
+	local Dropdown67 = Tabs.Settings:AddDropdown("Dropdown67", {
+		Title = "Select Image",
+		Values = {"Sonic", "Tails", "Knuckles"},
+		Multi = false,
+		Default = "Sonic",
+	})
+
+	Dropdown67:OnChanged(function(UIImage)
+	end)
+    Tabs.Settings:AddButton({
+		Title = "Change Image",
+		Callback = function()
+    	    if UIImage == "Sonic" then
+                UIImg = "rbxassetid://120605334883359"
+            elseif UIImage == "Tails" then
+                UIImg = "rbxassetid://73132913357853"
+            elseif UIImage == "Knuckles" then
+                UIImg = "rbxassetid://112198605633307"
+        end
+    end
+})
 	-- Addons:
 	-- SaveManager (Allows you to have a configuration system)
 	-- InterfaceManager (Allows you to have a interface managment system)
