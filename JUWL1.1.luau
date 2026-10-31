@@ -1,8 +1,4 @@
 
-
-
-
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
@@ -883,24 +879,11 @@ local opStuffPadding = Instance.new("UIPadding")
 opStuffPadding.PaddingTop = UDim.new(0, 10)
 opStuffPadding.Parent = opStuffScroll
 
-local executorWarningLabel = Instance.new("TextLabel")
-executorWarningLabel.Name = "ExecutorWarningLabel"
-executorWarningLabel.Size = UDim2.new(1, -40, 0, isMobile and 45 or 55)
-executorWarningLabel.LayoutOrder = 1 
-executorWarningLabel.BackgroundTransparency = 1
-executorWarningLabel.Text = "WORKS: DELTA DOESN'T WORK: XENO"
-executorWarningLabel.TextColor3 = Color3.fromRGB(255, 100, 100) 
-executorWarningLabel.TextSize = isMobile and 11 or 13
-executorWarningLabel.Font = Enum.Font.SourceSansBold
-executorWarningLabel.TextWrapped = true 
-executorWarningLabel.BorderSizePixel = 0
-executorWarningLabel.Parent = opStuffScroll
-
 
 local devButton = Instance.new("TextButton")
 devButton.Name = "BecomeDeveloperButton"
 devButton.Size = UDim2.new(1, -40, 0, isMobile and 38 or 50)
-devButton.LayoutOrder = 2
+devButton.LayoutOrder = 1
 devButton.BackgroundColor3 = Color3.fromRGB(110, 40, 190)
 devButton.BackgroundTransparency = 0.1
 devButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -938,7 +921,7 @@ end)
 local devSpacer1 = Instance.new("Frame")
 devSpacer1.Name = "devSpacer1"
 devSpacer1.Size = UDim2.new(1, 0, 0, 15)
-devSpacer1.LayoutOrder = 3
+devSpacer1.LayoutOrder = 2
 devSpacer1.BackgroundTransparency = 1
 devSpacer1.BorderSizePixel = 0
 devSpacer1.Parent = opStuffScroll
@@ -946,7 +929,7 @@ devSpacer1.Parent = opStuffScroll
 local devSpacer2 = Instance.new("Frame")
 devSpacer2.Name = "devSpacer2"
 devSpacer2.Size = UDim2.new(1, 0, 0, 15)
-devSpacer2.LayoutOrder = 4
+devSpacer2.LayoutOrder = 3
 devSpacer2.BackgroundTransparency = 1
 devSpacer2.BorderSizePixel = 0
 devSpacer2.Parent = opStuffScroll
@@ -957,7 +940,7 @@ devSpacer2.Parent = opStuffScroll
 local devButton2 = Instance.new("TextButton")
 devButton2.Name = "ConsoleBUTTON"
 devButton2.Size = UDim2.new(1, -40, 0, isMobile and 38 or 50)
-devButton2.LayoutOrder = 5
+devButton2.LayoutOrder = 4
 devButton2.BackgroundColor3 = Color3.fromRGB(110, 40, 190)
 devButton2.BackgroundTransparency = 0.1
 devButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1534,31 +1517,6 @@ muteButton.MouseButton1Click:Connect(function()
 	for _, sound in ipairs(getActiveSounds()) do sound.Volume = targetVolume end
 end)
 
-
-
-task.spawn(function()
-	local targetScreen = playerGui:FindFirstChild("MainMenu")
-	if targetScreen then applyInjectedTextLabel(targetScreen) end
-end)
-
-task.spawn(function()
-	local targetScreen = ReplicatedStorage:FindFirstChild("MainMenu")
-	if targetScreen then applyInjectedTextLabel(targetScreen) end
-end)
-
-local function spawnStrictBlackBarFix(targetRoot)
-	if not targetRoot then return end
-	if not targetRoot:FindFirstChild("Black Bar fix") then
-		local fixFrame = Instance.new("Frame")
-		fixFrame.Name = "Black Bar fix"
-		fixFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-		fixFrame.Position = UDim2.new(0.5, -770, 0.5, -1290)
-		fixFrame.Size = UDim2.new(1, 5, 0, 900)
-		fixFrame.BorderSizePixel = 0
-		fixFrame.ZIndex = -100
-		fixFrame.Parent = targetRoot
-	end
-end
 
 task.spawn(function() pcall(function() spawnStrictBlackBarFix(ReplicatedStorage:FindFirstChild("AnimationGui")) end) end)
 task.spawn(function() pcall(function() spawnStrictBlackBarFix(playerGui:FindFirstChild("AnimationGui")) end) end)
